@@ -170,7 +170,12 @@ class ChartFragment : Fragment() {
         private fun chartInit(): LineData {
             val entries: ArrayList<Entry> = ArrayList()
             entries.add(Entry(0F , 0F))
-            return LineData(LineDataSet(entries, "input"))
+            var dataSet: LineDataSet = LineDataSet(entries, "input")
+            dataSet.setDrawValues(false)
+            dataSet.setDrawCircles(false)
+            dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER //부드럽게
+            dataSet.cubicIntensity = 0.2f; //부드러운정도
+            return LineData(dataSet)
         }
 
         private fun updateChart(initTime : Long , data: LineData) {
