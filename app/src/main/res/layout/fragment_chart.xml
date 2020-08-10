@@ -33,7 +33,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center"
-                android:text="Start" />
+                android:text="Start"
+                android:enabled="false"/>
         </LinearLayout>
 
         <LinearLayout
@@ -47,7 +48,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center"
-                android:text="Pause" />
+                android:text="Pause"
+                android:enabled="false"/>
         </LinearLayout>
 
         <LinearLayout

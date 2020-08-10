@@ -115,14 +115,21 @@ class ChartFragment : Fragment() {
                 },
                 batch, 20)
 
-            if (doHandShake)
+            if (doHandShake) {
                 protocol.handShake()
+                enableButtons()
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupButtons()
+    }
+
+    private fun enableButtons() {
+        startButton.isEnabled = true
+        stopButton.isEnabled = true
     }
 
     private fun setupButtons() {

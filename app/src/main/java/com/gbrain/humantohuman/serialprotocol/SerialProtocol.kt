@@ -56,7 +56,7 @@ class SerialProtocol(
     override fun run() {
         try {
             signalIoProcess()
-        } catch (e: InterruptedException) {
+        } catch (e: Exception) {
             close()
         }
     }
