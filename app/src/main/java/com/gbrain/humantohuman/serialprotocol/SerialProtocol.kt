@@ -49,7 +49,7 @@ class SerialProtocol(
 
     fun handShake() {
         sendAndroidReady()
-        handleCalibConstant()
+//        handleCalibConstant()
         waitArduinoReady()
     }
 
