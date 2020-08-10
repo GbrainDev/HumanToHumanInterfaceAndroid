@@ -73,6 +73,7 @@ class SerialProtocol(
 
     private fun readCalibConstantIndex(): Int {
         var amount = 0
+        val rbytes = ByteArray(ARDUINO_SHORT_SIZE)
         while (amount < ARDUINO_SHORT_SIZE) {
             amount += instream.read(rbytes, amount, rbytes.size - amount)
         }

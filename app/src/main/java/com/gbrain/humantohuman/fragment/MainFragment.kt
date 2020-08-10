@@ -69,7 +69,9 @@ class MainFragment : Fragment() {
 
     private fun setupButtons() {
         btn_chart.setOnClickListener{
-            navController.navigate(R.id.action_mainFragment_to_chartFragment)
+            val bundle = Bundle()
+            bundle.putParcelable(UsbManager.EXTRA_DEVICE, usbDeviceHolder.getDevice()!!)
+            navController.navigate(R.id.action_mainFragment_to_chartFragment, bundle)
         }
         btn_guide.setOnClickListener{
             navController.navigate(R.id.action_mainFragment_to_guideFragment)
