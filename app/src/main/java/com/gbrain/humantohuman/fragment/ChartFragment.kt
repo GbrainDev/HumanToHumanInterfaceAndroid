@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_chart.*
 class ChartFragment : Fragment() {
     // TODO: Rename and change types of parameters
     var isrunning = false
-    lateinit var thread : Thread
+    var thread: Thread?= null
 
     fun Fragment?.runOnUiThread(action: () -> Unit) {
         this ?: return
@@ -51,7 +51,7 @@ class ChartFragment : Fragment() {
             startButton.text = "그래프 구현중"
             startButton.isClickable = false
             thread = ThreadClass()
-            thread.start()
+            thread?.start()
 
         }
 
@@ -60,7 +60,7 @@ class ChartFragment : Fragment() {
             //그래프를 없앤다
             startButton.text = "Start"
             startButton.isClickable = true
-            thread.interrupt()
+            thread?.interrupt()
 
             //initChart()
         }
@@ -136,7 +136,7 @@ class ChartFragment : Fragment() {
                 lineChart.setVisibleXRangeMaximum(30f)
                 lineChart.setVisibleXRangeMinimum(30f)
                 lineChart.moveViewToX(data.entryCount.toFloat()) //x값에따라 차트왼쪽으로이동
-                data.addEntry(Entry(timeElapsed.toFloat(), newest!!), 0)
+                data.addEntry(Entry(timeElapsed.toFloat()/100, newest!!), 0)
                 data.notifyDataChanged()
                 lineChart.notifyDataSetChanged()
                 lineChart.invalidate()
