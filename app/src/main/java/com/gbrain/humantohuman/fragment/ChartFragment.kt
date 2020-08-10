@@ -98,6 +98,7 @@ class ChartFragment : Fragment() {
 
     inner class ThreadClass : Thread() {
 
+        var newest : Float = 0F
 
         override fun run() {
             try {
@@ -111,8 +112,9 @@ class ChartFragment : Fragment() {
         }
 
         private fun drawChart(){
-            val input = Array<Double>(100,{Math.random()})
             // Entry 배열 생성
+
+
             var entries: ArrayList<Entry> = ArrayList()
             // Entry 배열 초기값 입력
             entries.add(Entry(0F , 0F))
@@ -126,15 +128,15 @@ class ChartFragment : Fragment() {
             //runOnUiThread {
             //    // 데이터업데이트를 이곳에서?
             //    //lineChart.animateXY(1, 1)
-            //}
-
-            for (i in 0 until input.size){
-
-                sleep(200)
+            //
+            val initTime = System.currentTimeMillis()
+            while (true) {
+                //깨울때 까지 잔다다
+                val timeElapsed = System.currentTimeMillis() - initTime
                 lineChart.setVisibleXRangeMaximum(30f)
                 lineChart.setVisibleXRangeMinimum(30f)
                 lineChart.moveViewToX(data.entryCount.toFloat()) //x값에따라 차트왼쪽으로이동
-                data.addEntry(Entry(i.toFloat(), input[i].toFloat()), 0)
+                data.addEntry(Entry(timeElapsed.toFloat(), newest!!), 0)
                 data.notifyDataChanged()
                 lineChart.notifyDataSetChanged()
                 lineChart.invalidate()
@@ -142,6 +144,11 @@ class ChartFragment : Fragment() {
             //startButton.text = "난수 생성 시작"
             //startButton.isClickable = true
 
+        }
+
+        fun notifySignal(signal: Float) {
+            newest = signal
+            //깨운
         }
     }
 }
