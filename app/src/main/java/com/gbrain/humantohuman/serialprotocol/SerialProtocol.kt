@@ -17,8 +17,7 @@ class SerialProtocol(
     private val serialConfig: SerialConfig,
     private val signalHandler: ShortHandler,
     private val readAmount: Int = 1,
-    private val pollingInterval: Long = 2L,
-    private val skipHandShake: Boolean = false
+    private val pollingInterval: Long = 2L
 ) : Closeable, Thread() {
 
     private val instream: SerialInputStream
@@ -36,12 +35,6 @@ class SerialProtocol(
         outstream = usbDevice.outputStream
         rbytes = ByteArray(readAmount * ARDUINO_SHORT_SIZE)
         wbytes = ByteArray(readAmount)
-
-        if (!skipHandShake) {
-            sendAndroidReady()
-            handleCalibConstant()
-            waitArduinoReady()
-        }
     }
 
     private fun sendSerialConfig() {
@@ -52,6 +45,12 @@ class SerialProtocol(
             setParity(serialConfig.parity)
             setFlowControl(serialConfig.flowControl)
         }
+    }
+
+    fun handShake() {
+        sendAndroidReady()
+        handleCalibConstant()
+        waitArduinoReady()
     }
 
     override fun run() {

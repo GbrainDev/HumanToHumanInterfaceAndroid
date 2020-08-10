@@ -30,8 +30,9 @@
             <Button
                 android:id="@+id/startButton"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_gravity="center"
                 android:text="Start" />
         </LinearLayout>
 
@@ -43,8 +44,9 @@
             <Button
                 android:id="@+id/stopButton"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_gravity="center"
                 android:text="Pause" />
         </LinearLayout>
 
@@ -57,6 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
+                android:layout_gravity="center"
                 android:text="@string/connection_info" />
         </LinearLayout>
 

@@ -39,7 +39,6 @@ class ChartFragment : Fragment() {
     var connection: UsbDeviceConnection? = null
 
     private lateinit var protocol: SerialProtocol
-    private var skipHandShake = false
     private var batch = 25
 
     private val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
@@ -49,8 +48,7 @@ class ChartFragment : Fragment() {
                 if (ACTION_USB_PERMISSION == intent.action) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         device?.apply {
-                            allocProtocol(skipHandShake)
-                            skipHandShake = true
+                            allocProtocol(true)
                         }
                     } else {
                         Log.d("TAG", "permission denied for device $device")
@@ -102,7 +100,7 @@ class ChartFragment : Fragment() {
         manager.requestPermission(device, permissionIntent)
     }
 
-    private fun allocProtocol(skipHandShake: Boolean) {
+    private fun allocProtocol(doHandShake: Boolean) {
         connection = manager.openDevice(device)
         serialPort = UsbSerialDevice.createUsbSerialDevice("cdc", device, connection, 1)
         serialPort?.also { serialPort ->
@@ -115,10 +113,10 @@ class ChartFragment : Fragment() {
                         chartDrawer?.notifySignal(data.toFloat())
                     }
                 },
-                batch,
-                20,
-                skipHandShake
-            )
+                batch, 20)
+
+            if (doHandShake)
+                protocol.handShake()
         }
     }
 
@@ -134,6 +132,8 @@ class ChartFragment : Fragment() {
 
             chartDrawer = ChartDrawer(batch, 30f,30f)
             chartDrawer?.start()
+
+            allocProtocol(false)
             protocol.start()
         }
 
@@ -147,7 +147,7 @@ class ChartFragment : Fragment() {
     }
 
     inner class ChartDrawer(val batch: Int, val max: Float, val min: Float) : Thread() {
-        val lock: Object = Object()
+        val lock = Object()
         val newestSignal =  ArrayList<Float>(batch)
 
         override fun run() {

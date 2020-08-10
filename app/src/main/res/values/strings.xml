@@ -5,7 +5,8 @@
     <string name="device_status_detected">Usb Connection : Success</string>
     <string name="device_status_lost">Usb Connection : Disconnected</string>
     <string name="app_description">App Version : v1.0 \n\nDeveloped by GBrain \n </string>
-    <string name="guide_description">GBrain Wireless Human to human interface Guide :\n\n
+    <string name="guide_title">GBrain Wireless \nHuman to Human Interface \nGuide</string>
+    <string name="guide_description">
         1. Patch emg electrodes on your arm \n\n
         2. Turn On Sender\'s Power\n\n
         3. Turn on Receiver\'s Power \n\n

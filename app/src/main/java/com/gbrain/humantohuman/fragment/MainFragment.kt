@@ -73,6 +73,8 @@ class MainFragment : Fragment() {
             bundle.putParcelable(UsbManager.EXTRA_DEVICE, usbDeviceHolder.getDevice()!!)
             navController.navigate(R.id.action_mainFragment_to_chartFragment, bundle)
         }
+        btn_chart.isEnabled = usbDeviceHolder.hasDevice()
+
         btn_guide.setOnClickListener{
             navController.navigate(R.id.action_mainFragment_to_guideFragment)
         }
@@ -93,6 +95,7 @@ class MainFragment : Fragment() {
             device_status.text =
                 activity?.getString(R.string.device_status_lost)
         }
+        btn_chart.isEnabled = deviceDetected
         device_status.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
     }
 
