@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">HumanToHuman</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="usb_status_success">Usb Connection : Success</string>
+    <string name="usb_status_fail">Usb Connection : Disconnected</string>
+    <string name="app_description">App Version : v1.0 \n\nDeveloped by GBrain \n </string>
+    <string name="guide_description">GBrain Wireless Human to human interface Guide :\n\n
+        1. Patch emg electrodes on your arm \n\n
+        2. Turn On Sender\'s Power\n\n
+        3. Turn on Receiver\'s Power \n\n
+        4. Connect Sender and Receiver with Usb cable \n\n
+        5. When Usb Connection status turns \"Connected\", go to Chart menu \n\n
+        6. On Chart menu
+
+
+
+    </string>
+    <string name="connection_info">Connection Info: \n0 device \nList: </string>
+</resources>
