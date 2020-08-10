@@ -12,8 +12,6 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import kotlinx.android.synthetic.main.fragment_chart.*
 
-
-
 class ChartFragment : Fragment() {
     // TODO: Rename and change types of parameters
     var isrunning = false
@@ -98,7 +96,6 @@ class ChartFragment : Fragment() {
 
     inner class ThreadClass : Thread() {
 
-
         override fun run() {
             try {
                 drawChart()
@@ -111,7 +108,7 @@ class ChartFragment : Fragment() {
         }
 
         private fun drawChart(){
-            val input = Array<Double>(100,{Math.random()})
+            val input = Array<Double>(100, {Math.random()})
             // Entry 배열 생성
             var entries: ArrayList<Entry> = ArrayList()
             // Entry 배열 초기값 입력

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <usb-device class="3" />
+    <usb-device class="5" />
+    <usb-device vendor-id="9025" />
+    <usb-device vendor-id="3368" />
+    <!-- arduino -->
+</resources>
