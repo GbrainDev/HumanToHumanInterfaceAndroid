@@ -10,31 +10,39 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="230dp">
+        android:layout_height="117dp">
+
+
 
         <View
             android:layout_width="180dp"
             android:layout_height="230dp"
-            android:background="@color/g_blue">
-        </View>
+            android:background="@color/g_blue"></View>
+
+
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="25dp"
             android:layout_margin="20dp"
-            android:textColor="#000"
             android:elegantTextHeight="true"
-            android:text="@string/guide_title" />
+            android:text="@string/guide_title"
+            android:textColor="#000"
+            android:textSize="20sp" />
     </FrameLayout>
+
+    <kr.co.prnd.YouTubePlayerView
+        android:id="@+id/you_tube_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="10dp"
-        android:textSize="17dp"
+        android:text="@string/guide_description"
         android:textColor="#000"
-        android:text="@string/guide_description" />
+        android:textSize="17dp" />
 </LinearLayout>
