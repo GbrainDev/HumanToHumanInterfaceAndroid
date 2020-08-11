@@ -11,13 +11,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.gbrain.humantohuman.R
 import kotlinx.android.synthetic.main.fragment_main.*
 
-interface UsbDeviceHolderInterface {
+interface UsbDeviceHolder {
     fun hasDevice(): Boolean
     fun getDevice(): UsbDevice?
     fun searchDevice(): UsbDevice?
@@ -29,22 +30,27 @@ interface UsbDeviceHolderInterface {
 
 class MainFragment : Fragment() {
 
-    val deviceConnectionReceiver = UsbDeviceProvider()
-    lateinit var usbDeviceHolder: UsbDeviceHolder
     lateinit var navController: NavController
+
+    val usbDeviceProvider = UsbDeviceProvider()
+
+    lateinit var usbDeviceHolder: UsbDeviceHolder
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        usbDeviceHolder = UsbDeviceHolderImpl(getUsbManager())
         return inflater.inflate(R.layout.fragment_main, container, false)
+    }
+
+    private fun getUsbManager(): UsbManager {
+        return requireContext().getSystemService(Context.USB_SERVICE) as UsbManager
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val usbManager = context?.getSystemService(Context.USB_SERVICE) as UsbManager
         navController = Navigation.findNavController(view)
-        usbDeviceHolder = UsbDeviceHolder(usbManager)
         addReceiver()
         setupGUI()
     }
@@ -55,40 +61,40 @@ class MainFragment : Fragment() {
         filter.addAction("android.hardware.usb.action.USB_DEVICE_ATTACHED")
 
         try {
-            activity?.unregisterReceiver(deviceConnectionReceiver)
+            requireContext().unregisterReceiver(usbDeviceProvider)
         } catch (e: Exception) {
+        } finally {
+            requireContext().registerReceiver(usbDeviceProvider, filter)
         }
-
-        activity?.registerReceiver(deviceConnectionReceiver, filter)
     }
 
     private fun setupGUI() {
         setupButtons()
-        guiApplyDeviceStatus(usbDeviceHolder.hasDevice())
+        setupDeviceStatus(usbDeviceHolder.hasDevice())
     }
 
     private fun setupButtons() {
-        btn_chart.setOnClickListener{
-            val bundle = Bundle()
-            bundle.putParcelable(UsbManager.EXTRA_DEVICE, usbDeviceHolder.getDevice()!!)
+        btn_chart.isEnabled = usbDeviceHolder.hasDevice()
+        btn_chart.setOnClickListener {
+            val bundle = bundleOf(UsbManager.EXTRA_DEVICE to usbDeviceHolder.getDevice())
             navController.navigate(R.id.action_mainFragment_to_chartFragment, bundle)
         }
-        btn_chart.isEnabled = usbDeviceHolder.hasDevice()
 
-        btn_guide.setOnClickListener{
+        btn_guide.setOnClickListener {
             navController.navigate(R.id.action_mainFragment_to_guideFragment)
         }
-        btn_info.setOnClickListener{
+
+        btn_info.setOnClickListener {
             navController.navigate(R.id.action_mainFragment_to_infoFragment)
         }
     }
 
-    private fun guiApplyDeviceStatus(deviceDetected: Boolean) {
+    private fun setupDeviceStatus(deviceDetected: Boolean) {
         if (deviceDetected) {
             device_status.background =
                 activity?.getDrawable(R.drawable.drawable_device_status_detected)
             device_status.text =
-                activity?.getString(R.string.device_status_detected) + " " + usbDeviceHolder.getDevice()?.vendorId
+                activity?.getString(R.string.device_status_detected) + " id:" + usbDeviceHolder.getDevice()?.vendorId
         } else {
             device_status.background =
                 activity?.getDrawable(R.drawable.drawable_device_status_lost)
@@ -99,7 +105,7 @@ class MainFragment : Fragment() {
         device_status.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
     }
 
-    inner class UsbDeviceProvider: BroadcastReceiver() {
+    inner class UsbDeviceProvider : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.also {
                 usbDeviceHolder.handleBroadcast(intent)
@@ -107,10 +113,12 @@ class MainFragment : Fragment() {
         }
     }
 
-    inner class UsbDeviceHolder(val usbManager: UsbManager): UsbDeviceHolderInterface {
+    inner class UsbDeviceHolderImpl(val usbManager: UsbManager) : UsbDeviceHolder {
         private var device: UsbDevice? = null
+
         private val ARDUINO_VENDOR = 3368
-        private val AVAILABLE_VENDOR_IDS = arrayListOf(ARDUINO_VENDOR, 9025)
+        private val CHX_VENDOR = 6890
+        private val AVAILABLE_VENDOR_IDS = arrayListOf(ARDUINO_VENDOR, 9025, CHX_VENDOR)
 
         init {
             device = searchDevice()
@@ -126,12 +134,12 @@ class MainFragment : Fragment() {
 
         override fun onDeviceAttached(device: UsbDevice) {
             this.device = device
-            guiApplyDeviceStatus(true)
+            setupDeviceStatus(true)
         }
 
         override fun onDeviceDetached(device: UsbDevice) {
             this.device = null
-            guiApplyDeviceStatus(false)
+            setupDeviceStatus(false)
         }
 
         override fun fetchDevice(intent: Intent): UsbDevice? {
@@ -140,7 +148,7 @@ class MainFragment : Fragment() {
 
         override fun searchDevice(): UsbDevice? {
             val deviceList = usbManager.deviceList.values
-            deviceList.forEach {device->
+            deviceList.forEach { device ->
                 if (AVAILABLE_VENDOR_IDS.contains(device.vendorId))
                     return device
             }
@@ -152,8 +160,8 @@ class MainFragment : Fragment() {
                 val device = fetchDevice(intent)
                 val action = intent.action
                 when (action) {
-                    UsbManager.ACTION_USB_DEVICE_ATTACHED->onDeviceAttached(device!!)
-                    UsbManager.ACTION_USB_DEVICE_DETACHED->onDeviceDetached(device!!)
+                    UsbManager.ACTION_USB_DEVICE_ATTACHED -> onDeviceAttached(device!!)
+                    UsbManager.ACTION_USB_DEVICE_DETACHED -> onDeviceDetached(device!!)
                 }
             }
         }

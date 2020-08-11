@@ -6,15 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import com.corndog.braoadcastprac.serialprotocol.SerialConfig
 import com.corndog.braoadcastprac.serialprotocol.SerialProtocol
 import com.felhr.usbserial.UsbSerialDevice
@@ -22,7 +22,7 @@ import com.gbrain.humantohuman.R
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import dataprotocol.typehandle.ShortHandler
+import dataprotocol.typehandle.ByteHandler
 import kotlinx.android.synthetic.main.fragment_chart.*
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -32,48 +32,47 @@ fun Fragment?.runOnUiThread(action: () -> Unit) {
 }
 
 class ChartFragment : Fragment() {
+    lateinit var navController: NavController
 
     lateinit var manager: UsbManager
     var device: UsbDevice? = null
-    var serialPort: UsbSerialDevice? = null
-    var connection: UsbDeviceConnection? = null
-
-    private lateinit var protocol: SerialProtocol
-    private var batch = 25
-
-    private val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
-    private val usbReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            try {
-                if (ACTION_USB_PERMISSION == intent.action) {
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        device?.apply {
-                            allocProtocol(true)
-                        }
-                    } else {
-                        Log.d("TAG", "permission denied for device $device")
-                    }
-                }
-            } catch (e: java.lang.Exception) {
-                val sb = StringBuilder()
-                e.stackTrace.forEach { it ->
-                    sb.appendln(it.toString())
-                    sb.appendln(e::class.java)
-                }
-            }
-        }
-    }
 
     var chartDrawer: ChartDrawer? = null
+    var protocol: SerialProtocol? = null
+    var batch = 50
+
+    private val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
+    private val usbEventReceiver = UsbEventReceiver()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            device = it.getParcelable<UsbDevice>(UsbManager.EXTRA_DEVICE)
+            device = it.getParcelable(UsbManager.EXTRA_DEVICE)
             manager = requireContext().getSystemService(Context.USB_SERVICE) as UsbManager
         }
         runReceiver()
-        requestPermission()
+        requestUsbPermission()
+    }
+
+    private fun runReceiver() {
+        val context = requireContext()
+        val filter = IntentFilter().apply {
+            addAction(ACTION_USB_PERMISSION)
+            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        }
+
+        try {
+            context.unregisterReceiver(usbEventReceiver)
+        } catch (e: Exception) {
+        } finally {
+            context.registerReceiver(usbEventReceiver, filter)
+        }
+    }
+
+    private fun requestUsbPermission() {
+        val permissionIntent = PendingIntent.getBroadcast(requireContext(), 0,
+            Intent(ACTION_USB_PERMISSION), 0)
+        manager.requestPermission(device, permissionIntent)
     }
 
     override fun onCreateView(
@@ -83,40 +82,25 @@ class ChartFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_chart, container, false)
     }
 
-    private fun runReceiver() {
-        val filter = IntentFilter(ACTION_USB_PERMISSION)
-        val context = requireContext()
-        try {
-            context.unregisterReceiver(usbReceiver)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        context.registerReceiver(usbReceiver, filter)
-    }
-
-    private fun requestPermission() {
-        val permissionIntent = PendingIntent.getBroadcast(requireContext(),
-            0, Intent(ACTION_USB_PERMISSION), 0)
-        manager.requestPermission(device, permissionIntent)
-    }
-
     private fun allocProtocol(doHandShake: Boolean) {
-        connection = manager.openDevice(device)
-        serialPort = UsbSerialDevice.createUsbSerialDevice("cdc", device, connection, 1)
-        serialPort?.also { serialPort ->
-            val serialConfig = SerialConfig.getDefaultConfig()
-            protocol = SerialProtocol(requireContext(),
+        val connection = manager.openDevice(device)
+        val serialPort = UsbSerialDevice.createUsbSerialDevice("ch34x", device, connection, 0)
+
+        serialPort?.also {serialPort->
+            val serialConfig = SerialConfig.Builder().baudRate(115200).commit()
+
+            protocol = SerialProtocol(
+                requireContext(),
                 serialPort,
                 serialConfig,
-                object: ShortHandler {
-                    override fun handle(data: Short, handlingHint: Int) {
-                        chartDrawer?.notifySignal(data.toFloat())
+                object: ByteHandler {
+                    override fun handle(data: Byte, handlingHint: Int) {
+                        chartDrawer?.addSignal(-data.toFloat())
                     }
-                },
-                batch, 20)
+                }, batch, 50)
 
             if (doHandShake) {
-                protocol.handShake()
+                protocol?.handShake()
                 enableButtons()
             }
         }
@@ -124,6 +108,7 @@ class ChartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
         setupButtons()
     }
 
@@ -139,18 +124,31 @@ class ChartFragment : Fragment() {
 
             chartDrawer = ChartDrawer(batch, 30f,30f)
             chartDrawer?.start()
-
             allocProtocol(false)
-            protocol.start()
+            protocol?.start()
         }
 
         stopButton.setOnClickListener {
             startButton.text = "Start"
             startButton.isClickable = true
 
-            protocol.interrupt()
+            protocol?.interrupt()
+            protocol = null
             chartDrawer?.interrupt()
+            chartDrawer = null
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        interruptWorker()
+    }
+
+    private fun interruptWorker() {
+        chartDrawer?.interrupt()
+        chartDrawer = null
+        protocol?.interrupt()
+        protocol = null
     }
 
     inner class ChartDrawer(val batch: Int, val max: Float, val min: Float) : Thread() {
@@ -162,30 +160,33 @@ class ChartFragment : Fragment() {
                 drawChart()
             } catch (e : InterruptedException){
                 runOnUiThread {
-                    Toast.makeText(context, "thread interrupted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "chart interrupted", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        private fun chartInit(): LineData {
+        private fun initChartData(): LineData {
             val entries: ArrayList<Entry> = ArrayList()
+            var dataSet = LineDataSet(entries, "input")
+
             entries.add(Entry(0F , 0F))
-            var dataSet: LineDataSet = LineDataSet(entries, "input")
+
             dataSet.setDrawValues(false)
             dataSet.setDrawCircles(false)
-            dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER //부드럽게
-            dataSet.cubicIntensity = 0.2f; //부드러운정도
+            dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+            dataSet.cubicIntensity = 0.2f
+
             return LineData(dataSet)
         }
 
         private fun updateChart(initTime : Long , data: LineData) {
-            val timeElapsed = System.currentTimeMillis() - initTime
+            //val timeElapsed = System.currentTimeMillis() - initTime
             lineChart.setVisibleXRangeMaximum(max)
             lineChart.setVisibleXRangeMinimum(min)
-            lineChart.moveViewToX(timeElapsed.toFloat()/10)
+            lineChart.moveViewToX((data.entryCount.toFloat()))
 
-            newestSignal.forEach {
-                data.addEntry(Entry(timeElapsed.toFloat()/10, it), 0)
+            newestSignal.forEachIndexed {index, value->
+                data.addEntry(Entry((data.entryCount.toFloat()/10), value), 0)
             }
             data.notifyDataChanged()
 
@@ -194,10 +195,10 @@ class ChartFragment : Fragment() {
         }
 
         private fun drawChart(){
-            val data = chartInit()
+            val initTime = System.currentTimeMillis()
+            val data = initChartData()
             lineChart.data = data
 
-            val initTime = System.currentTimeMillis()
             while (true) {
                 synchronized(lock) {
                     if (newestSignal.size < batch) {
@@ -211,7 +212,7 @@ class ChartFragment : Fragment() {
             }
         }
 
-        fun notifySignal(signal: Float) {
+        fun addSignal(signal: Float) {
             synchronized(lock) {
                 newestSignal.add(signal)
                 lock.notifyAll()
@@ -219,18 +220,21 @@ class ChartFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        chartDrawer?.interrupt()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        chartDrawer?.interrupt()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        chartDrawer?.interrupt()
+    inner class UsbEventReceiver: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            try {
+                if (ACTION_USB_PERMISSION == intent.action) {
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        device?.apply {
+                            allocProtocol(true)
+                        }
+                    } else if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
+                        interruptWorker()
+                        navController.popBackStack()
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
     }
 }

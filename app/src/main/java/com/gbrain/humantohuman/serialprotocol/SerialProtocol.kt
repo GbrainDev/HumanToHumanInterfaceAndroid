@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.felhr.usbserial.SerialInputStream
 import com.felhr.usbserial.SerialOutputStream
 import com.felhr.usbserial.UsbSerialDevice
+import dataprotocol.typehandle.ByteHandler
 import dataprotocol.typehandle.ShortHandler
 import java.io.Closeable
 import java.nio.ByteBuffer
@@ -15,7 +16,7 @@ class SerialProtocol(
     private val context: Context,
     private val usbDevice: UsbSerialDevice,
     private val serialConfig: SerialConfig,
-    private val signalHandler: ShortHandler,
+    private val signalHandler: ByteHandler,
     private val readAmount: Int = 1,
     private val pollingInterval: Long = 2L
 ) : Closeable, Thread() {
@@ -38,6 +39,7 @@ class SerialProtocol(
     }
 
     private fun sendSerialConfig() {
+        sleep(2500)
         with(usbDevice) {
             setBaudRate(serialConfig.baudRate)
             setDataBits(serialConfig.dataBits)
@@ -48,9 +50,9 @@ class SerialProtocol(
     }
 
     fun handShake() {
-        sendAndroidReady()
+//        sendAndroidReady()
 //        handleCalibConstant()
-        waitArduinoReady()
+//        waitArduinoReady()
     }
 
     override fun run() {
@@ -104,7 +106,7 @@ class SerialProtocol(
 
     private fun signalIoProcess() {
         while (true) {
-            sendInitiator()
+//            sendInitiator()
             readSignal()
             handleSignal()
             sleep(pollingInterval)
@@ -126,7 +128,7 @@ class SerialProtocol(
 
     private fun handleSignal() {
         while (buffer.hasRemaining()) {
-            val data = buffer.order(ByteOrder.LITTLE_ENDIAN).getShort()
+            val data = buffer.order(ByteOrder.LITTLE_ENDIAN).get()
             signalHandler.handle(data, 0)
         }
     }
@@ -138,7 +140,7 @@ class SerialProtocol(
     }
 
     companion object {
-        private val ARDUINO_SHORT_SIZE = 2
+        private val ARDUINO_SHORT_SIZE = 1
         private val ARDUINO_DOUBLE_SIZE = 4
         private val ANDROID_READY = ByteArray(1)
     }
