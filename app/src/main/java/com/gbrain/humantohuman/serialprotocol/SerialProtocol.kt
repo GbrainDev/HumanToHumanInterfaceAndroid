@@ -9,6 +9,7 @@ import com.felhr.usbserial.UsbSerialDevice
 import dataprotocol.typehandle.ByteHandler
 import dataprotocol.typehandle.ShortHandler
 import java.io.Closeable
+import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -18,41 +19,66 @@ class SerialProtocol(
     private val serialConfig: SerialConfig,
     private val signalHandler: ByteHandler,
     private val readAmount: Int = 1,
-    private val pollingInterval: Long = 2L
+    private val pollingInterval: Long = 2L,
+    private val doHandShake: Boolean = false
 ) : Closeable, Thread() {
 
-    private val instream: SerialInputStream
-    private val outstream: SerialOutputStream
+    private var instream: SerialInputStream
+    private var outstream: SerialOutputStream
     private val rbytes: ByteArray
     private val wbytes: ByteArray
 
     lateinit private var buffer: ByteBuffer
 
-    init {
+    init {sendSerialConfig()
         usbDevice.syncOpen()
-        sendSerialConfig()
-
         instream = usbDevice.inputStream
         outstream = usbDevice.outputStream
+
+        if (doHandShake)
+            sendSerialConfig()
+
         rbytes = ByteArray(readAmount * ARDUINO_SHORT_SIZE)
         wbytes = ByteArray(readAmount)
     }
 
-    private fun sendSerialConfig() {
-        sleep(2500)
-        with(usbDevice) {
-            setBaudRate(serialConfig.baudRate)
-            setDataBits(serialConfig.dataBits)
-            setStopBits(serialConfig.stopBits)
-            setParity(serialConfig.parity)
-            setFlowControl(serialConfig.flowControl)
+    private fun sendSerialConfig(){
+        var read_one = 0
+
+        do {
+            if (!usbDevice.isOpen)
+                usbDevice.syncOpen()
+
+            with(usbDevice) {
+                setBaudRate(serialConfig.baudRate)
+                setDataBits(serialConfig.dataBits)
+                setStopBits(serialConfig.stopBits)
+                setParity(serialConfig.parity)
+                setFlowControl(serialConfig.flowControl)
+            }
+
+            instream = usbDevice.inputStream
+            outstream = usbDevice.outputStream
+
+            read_one = instream.read()
+
+            if (read_one == 0)
+                usbDevice.syncClose()
+            else
+                break
+
+        } while (true)
+
+        (context as Activity).runOnUiThread {
+            Toast.makeText(context, "serial config done", Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun handShake() {
-//        sendAndroidReady()
-//        handleCalibConstant()
-//        waitArduinoReady()
+    fun setupInputStream() {
+        if (!usbDevice.isOpen)
+            usbDevice.syncOpen()
+        instream = usbDevice.inputStream
+        outstream = usbDevice.outputStream
     }
 
     override fun run() {
@@ -105,6 +131,9 @@ class SerialProtocol(
     }
 
     private fun signalIoProcess() {
+        (context as Activity).runOnUiThread {
+            Toast.makeText(context, "start reading", Toast.LENGTH_SHORT).show()
+        }
         while (true) {
 //            sendInitiator()
             readSignal()
