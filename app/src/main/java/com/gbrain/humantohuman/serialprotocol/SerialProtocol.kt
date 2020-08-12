@@ -20,7 +20,6 @@ class SerialProtocol(
     private val pollingInterval: Long = 2L,
     private val doHandShake: Boolean = false
 ) : Closeable, Thread() {
-
     private var instream: SerialInputStream
     private var outstream: SerialOutputStream
     private val rbytes: ByteArray
