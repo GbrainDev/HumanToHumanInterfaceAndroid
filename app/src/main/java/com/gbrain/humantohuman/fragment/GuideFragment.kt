@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.gbrain.humantohuman.R
+import kotlinx.android.synthetic.main.fragment_guide.view.*
+import kr.co.prnd.YouTubePlayerView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,6 +25,12 @@ class GuideFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_guide, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val youTubePlayerView: YouTubePlayerView = view.you_tube_player_view
+        youTubePlayerView.play("fGMDq3ay7Ro")
     }
 
 
