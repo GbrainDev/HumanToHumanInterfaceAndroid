@@ -6,7 +6,10 @@ import android.widget.Toast
 import com.felhr.usbserial.SerialInputStream
 import com.felhr.usbserial.SerialOutputStream
 import com.felhr.usbserial.UsbSerialDevice
-import dataprotocol.typehandle.ShortHandler
+import dataprotocol.DataProtocol
+import dataprotocol.buffered.ProtocolBuffer
+import dataprotocol.buffered.ProtocolBufferReader
+import dataprotocol.typehandle.TypeHandler
 import java.io.Closeable
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -15,19 +18,22 @@ class SerialProtocol(
     private val context: Context,
     private val usbDevice: UsbSerialDevice,
     private val serialConfig: SerialConfig,
-    private val signalHandler: ShortHandler,
+    private val signalHandler: TypeHandler<Short>,
     private val readAmount: Int = 1,
     private val pollingInterval: Long = 2L,
     private val doHandShake: Boolean = false
 ) : Closeable, Thread() {
+
+    private val protocol = DataProtocol.Builder().shorts(readAmount).build()
     private var instream: SerialInputStream
     private var outstream: SerialOutputStream
     private val rbytes: ByteArray
     private val wbytes: ByteArray
 
-    lateinit private var buffer: ByteBuffer
+    lateinit private var signalBuffer: ByteBuffer
 
-    init {sendSerialConfig()
+    init {
+        sendSerialConfig()
         usbDevice.syncOpen()
         sendSerialConfig()
 
@@ -45,7 +51,7 @@ class SerialProtocol(
         }
     }
 
-    private fun sendSerialConfig(){
+    private fun sendSerialConfig() {
         with(usbDevice) {
             setBaudRate(serialConfig.baudRate)
             setDataBits(serialConfig.dataBits)
@@ -85,12 +91,12 @@ class SerialProtocol(
         while (amount < ARDUINO_SHORT_SIZE) {
             amount += instream.read(rbytes, amount, rbytes.size - amount)
         }
-        buffer = ByteBuffer.wrap(rbytes)
-        buffer.rewind()
+        signalBuffer = ByteBuffer.wrap(rbytes)
+        signalBuffer.rewind()
 
         var index: Short = 0
-        while (buffer.hasRemaining())
-            index = buffer.order(ByteOrder.LITTLE_ENDIAN).getShort()
+        while (signalBuffer.hasRemaining())
+            index = signalBuffer.order(ByteOrder.LITTLE_ENDIAN).getShort()
 
         (context as Activity).runOnUiThread {
             Toast.makeText(context, "$index selected", Toast.LENGTH_SHORT).show()
@@ -101,7 +107,7 @@ class SerialProtocol(
     private fun writeCalibConstant(index: Int) {
         val constants = CalibConstant.get(index)
         val buffer = ByteBuffer.allocate(constants.size * ARDUINO_DOUBLE_SIZE)
-        constants.forEach {value: Double ->
+        constants.forEach { value: Double ->
             buffer.order(ByteOrder.BIG_ENDIAN).putFloat(value.toFloat())
         }
         outstream.write(buffer.array())
@@ -132,21 +138,30 @@ class SerialProtocol(
         while (amount < readAmount * ARDUINO_SHORT_SIZE) {
             amount += instream.read(rbytes, amount, rbytes.size - amount)
         }
-        buffer = ByteBuffer.wrap(rbytes)
-        buffer.rewind()
+        signalBuffer = ByteBuffer.wrap(rbytes)
+        signalBuffer.rewind()
     }
 
     private fun handleSignal() {
-        while (buffer.hasRemaining()) {
-            val data = buffer.order(ByteOrder.LITTLE_ENDIAN).getShort()
-            signalHandler.handle(data, 0)
-        }
+        val probuf = ProtocolBuffer(signalBuffer, protocol)
+        val reader = MySignalReader(probuf)
+        reader.readByData()
+//        while (signalBuffer.hasRemaining()) {
+//            val data = signalBuffer.order(ByteOrder.LITTLE_ENDIAN).getShort()
+//            signalHandler.invoke(data, 0)
+//        }
     }
 
     override fun close() {
         usbDevice.syncClose()
         instream.close()
         outstream.close()
+    }
+
+    inner class MySignalReader(probuf: ProtocolBuffer) : ProtocolBufferReader(probuf) {
+        override fun onHandlerSetup() {
+            addShortHandler(signalHandler)
+        }
     }
 
     companion object {

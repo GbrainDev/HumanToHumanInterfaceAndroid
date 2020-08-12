@@ -22,7 +22,6 @@ import com.gbrain.humantohuman.R
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import dataprotocol.typehandle.ShortHandler
 import kotlinx.android.synthetic.main.fragment_chart.*
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -70,8 +69,10 @@ class ChartFragment : Fragment() {
     }
 
     private fun requestUsbPermission() {
-        val permissionIntent = PendingIntent.getBroadcast(requireContext(), 0,
-            Intent(ACTION_USB_PERMISSION), 0)
+        val permissionIntent = PendingIntent.getBroadcast(
+            requireContext(), 0,
+            Intent(ACTION_USB_PERMISSION), 0
+        )
         manager.requestPermission(device, permissionIntent)
     }
 
@@ -84,19 +85,18 @@ class ChartFragment : Fragment() {
 
     private fun allocProtocol(doHandShake: Boolean) {
         val connection = manager.openDevice(device)
-        val serialPort = UsbSerialDevice.createUsbSerialDevice(UsbSerialDevice.CDC, device, connection, 1)
+        val serialPort =
+            UsbSerialDevice.createUsbSerialDevice(UsbSerialDevice.CDC, device, connection, 1)
 
         serialPort?.also {
             val serialConfig = SerialConfig.getDefaultConfig()
             protocol = SerialProtocol(
                 requireContext(),
                 it,
-                serialConfig,
-                object: ShortHandler {
-                    override fun handle(data: Short, handlingHint: Int) {
-                        chartDrawer!!.addSignal(data.toFloat())
-                    }
-                }, batch, 50, doHandShake)
+                serialConfig, { data, handlingHint ->
+                    chartDrawer!!.addSignal(data.toFloat())
+                }, batch, 50, doHandShake
+            )
 
             enableButtons()
         }
@@ -139,7 +139,7 @@ class ChartFragment : Fragment() {
 
     private fun initiateWorker() {
         allocProtocol(false)
-        chartDrawer = ChartDrawer(batch, 30f,30f)
+        chartDrawer = ChartDrawer(batch, 30f, 30f)
         chartDrawer!!.start()
         protocol!!.setupInputStream()
         protocol!!.start()
@@ -154,12 +154,12 @@ class ChartFragment : Fragment() {
 
     inner class ChartDrawer(val batch: Int, val max: Float, val min: Float) : Thread() {
         val lock = Object()
-        val newestSignal =  ArrayList<Float>(batch)
+        val newestSignal = ArrayList<Float>(batch)
 
         override fun run() {
             try {
                 drawChart()
-            } catch (e : InterruptedException){
+            } catch (e: InterruptedException) {
                 runOnUiThread {
                     Toast.makeText(context, "chart interrupted", Toast.LENGTH_SHORT).show()
                 }
@@ -168,7 +168,7 @@ class ChartFragment : Fragment() {
 
         private fun initChartData(): LineData {
             val entries: ArrayList<Entry> = ArrayList()
-            entries.add(Entry(0F , 0F))
+            entries.add(Entry(0F, 0F))
             val dataSet = LineDataSet(entries, "input")
 
             dataSet.setDrawValues(false)
@@ -184,8 +184,8 @@ class ChartFragment : Fragment() {
             lineChart.setVisibleXRangeMinimum(min)
             lineChart.moveViewToX(data.entryCount.toFloat())
 
-            newestSignal.forEach {value->
-                data.addEntry(Entry((data.entryCount.toFloat()/10), value), 0)
+            newestSignal.forEach { value ->
+                data.addEntry(Entry((data.entryCount.toFloat() / 10), value), 0)
             }
             data.notifyDataChanged()
 
@@ -193,7 +193,7 @@ class ChartFragment : Fragment() {
             lineChart.invalidate()
         }
 
-        private fun drawChart(){
+        private fun drawChart() {
             //val initTime = System.currentTimeMillis()
             val data = initChartData()
             lineChart.data = data
@@ -202,8 +202,7 @@ class ChartFragment : Fragment() {
                 synchronized(lock) {
                     if (newestSignal.size < batch) {
                         lock.wait()
-                    }
-                    else {
+                    } else {
                         updateChart(data)
                         newestSignal.clear()
                     }
@@ -219,12 +218,13 @@ class ChartFragment : Fragment() {
         }
     }
 
-    inner class UsbEventReceiver: BroadcastReceiver() {
+    inner class UsbEventReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             try {
                 if (ACTION_USB_PERMISSION == intent.action) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        Toast.makeText(requireContext(), "permission granted", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "permission granted", Toast.LENGTH_SHORT)
+                            .show()
                         device?.apply {
                             allocProtocol(true)
                         }
