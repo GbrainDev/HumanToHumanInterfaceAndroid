@@ -6,10 +6,8 @@ import android.widget.Toast
 import com.felhr.usbserial.SerialInputStream
 import com.felhr.usbserial.SerialOutputStream
 import com.felhr.usbserial.UsbSerialDevice
-import dataprotocol.typehandle.ByteHandler
 import dataprotocol.typehandle.ShortHandler
 import java.io.Closeable
-import java.io.InputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
