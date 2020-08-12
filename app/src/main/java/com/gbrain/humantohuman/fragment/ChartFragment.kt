@@ -22,7 +22,7 @@ import com.gbrain.humantohuman.R
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import dataprotocol.typehandle.ByteHandler
+import dataprotocol.typehandle.ShortHandler
 import kotlinx.android.synthetic.main.fragment_chart.*
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -39,7 +39,7 @@ class ChartFragment : Fragment() {
 
     var chartDrawer: ChartDrawer? = null
     var protocol: SerialProtocol? = null
-    var batch = 10
+    var batch = 25
 
     private val ACTION_USB_PERMISSION = "com.corndog.usb.USB_PERMISSION"
     private val usbEventReceiver = UsbEventReceiver()
@@ -84,17 +84,17 @@ class ChartFragment : Fragment() {
 
     private fun allocProtocol(doHandShake: Boolean) {
         val connection = manager.openDevice(device)
-        val serialPort = UsbSerialDevice.createUsbSerialDevice(UsbSerialDevice.CH34x, device, connection, 0)
+        val serialPort = UsbSerialDevice.createUsbSerialDevice(UsbSerialDevice.CDC, device, connection, 1)
 
         serialPort?.also {
-            val serialConfig = SerialConfig.Builder().baudRate(115200).commit()
+            val serialConfig = SerialConfig.getDefaultConfig()
             protocol = SerialProtocol(
                 requireContext(),
                 it,
                 serialConfig,
-                object: ByteHandler {
-                    override fun handle(data: Byte, handlingHint: Int) {
-                        chartDrawer!!.addSignal(-data.toFloat())
+                object: ShortHandler {
+                    override fun handle(data: Short, handlingHint: Int) {
+                        chartDrawer!!.addSignal(data.toFloat())
                     }
                 }, batch, 50, doHandShake)
 
@@ -179,11 +179,10 @@ class ChartFragment : Fragment() {
             return LineData(dataSet)
         }
 
-        private fun updateChart(initTime : Long , data: LineData) {
-            //val timeElapsed = System.currentTimeMillis() - initTime
+        private fun updateChart(data: LineData) {
             lineChart.setVisibleXRangeMaximum(max)
             lineChart.setVisibleXRangeMinimum(min)
-            lineChart.moveViewToX((data.entryCount.toFloat()))
+            lineChart.moveViewToX(data.entryCount.toFloat())
 
             newestSignal.forEach {value->
                 data.addEntry(Entry((data.entryCount.toFloat()/10), value), 0)
@@ -195,7 +194,7 @@ class ChartFragment : Fragment() {
         }
 
         private fun drawChart(){
-            val initTime = System.currentTimeMillis()
+            //val initTime = System.currentTimeMillis()
             val data = initChartData()
             lineChart.data = data
 
@@ -205,7 +204,7 @@ class ChartFragment : Fragment() {
                         lock.wait()
                     }
                     else {
-                        updateChart(initTime, data)
+                        updateChart(data)
                         newestSignal.clear()
                     }
                 }

@@ -17,7 +17,7 @@ class SerialProtocol(
     private val context: Context,
     private val usbDevice: UsbSerialDevice,
     private val serialConfig: SerialConfig,
-    private val signalHandler: ByteHandler,
+    private val signalHandler: ShortHandler,
     private val readAmount: Int = 1,
     private val pollingInterval: Long = 2L,
     private val doHandShake: Boolean = false
@@ -32,45 +32,29 @@ class SerialProtocol(
 
     init {sendSerialConfig()
         usbDevice.syncOpen()
+        sendSerialConfig()
+
         instream = usbDevice.inputStream
         outstream = usbDevice.outputStream
 
-        if (doHandShake)
-            sendSerialConfig()
-
         rbytes = ByteArray(readAmount * ARDUINO_SHORT_SIZE)
         wbytes = ByteArray(readAmount)
+
+        if (doHandShake) {
+            sleep(2550)
+            sendAndroidReady()
+            handleCalibConstant()
+            waitArduinoReady()
+        }
     }
 
     private fun sendSerialConfig(){
-        var read_one = 0
-
-        do {
-            if (!usbDevice.isOpen)
-                usbDevice.syncOpen()
-
-            with(usbDevice) {
-                setBaudRate(serialConfig.baudRate)
-                setDataBits(serialConfig.dataBits)
-                setStopBits(serialConfig.stopBits)
-                setParity(serialConfig.parity)
-                setFlowControl(serialConfig.flowControl)
-            }
-
-            instream = usbDevice.inputStream
-            outstream = usbDevice.outputStream
-
-            read_one = instream.read()
-
-            if (read_one == 0)
-                usbDevice.syncClose()
-            else
-                break
-
-        } while (true)
-
-        (context as Activity).runOnUiThread {
-            Toast.makeText(context, "serial config done", Toast.LENGTH_SHORT).show()
+        with(usbDevice) {
+            setBaudRate(serialConfig.baudRate)
+            setDataBits(serialConfig.dataBits)
+            setStopBits(serialConfig.stopBits)
+            setParity(serialConfig.parity)
+            setFlowControl(serialConfig.flowControl)
         }
     }
 
@@ -135,7 +119,7 @@ class SerialProtocol(
             Toast.makeText(context, "start reading", Toast.LENGTH_SHORT).show()
         }
         while (true) {
-//            sendInitiator()
+            sendInitiator()
             readSignal()
             handleSignal()
             sleep(pollingInterval)
@@ -157,7 +141,7 @@ class SerialProtocol(
 
     private fun handleSignal() {
         while (buffer.hasRemaining()) {
-            val data = buffer.order(ByteOrder.LITTLE_ENDIAN).get()
+            val data = buffer.order(ByteOrder.LITTLE_ENDIAN).getShort()
             signalHandler.handle(data, 0)
         }
     }
@@ -169,7 +153,7 @@ class SerialProtocol(
     }
 
     companion object {
-        private val ARDUINO_SHORT_SIZE = 1
+        private val ARDUINO_SHORT_SIZE = 2
         private val ARDUINO_DOUBLE_SIZE = 4
         private val ANDROID_READY = ByteArray(1)
     }
