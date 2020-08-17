@@ -22,7 +22,7 @@ import com.gbrain.humantohuman.R
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import dataprotocol.typehandle.ByteHandler
+import dataprotocol.typehandle.ShortHandler
 import kotlinx.android.synthetic.main.fragment_chart.*
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -39,9 +39,9 @@ class ChartFragment : Fragment() {
 
     var chartDrawer: ChartDrawer? = null
     var protocol: SerialProtocol? = null
-    var batch = 50
+    var batch = 25
 
-    private val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
+    private val ACTION_USB_PERMISSION = "com.corndog.usb.USB_PERMISSION"
     private val usbEventReceiver = UsbEventReceiver()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,32 +84,22 @@ class ChartFragment : Fragment() {
 
     private fun allocProtocol(doHandShake: Boolean) {
         val connection = manager.openDevice(device)
-        val serialPort = UsbSerialDevice.createUsbSerialDevice("ch34x", device, connection, 0)
+        val serialPort = UsbSerialDevice.createUsbSerialDevice(UsbSerialDevice.CDC, device, connection, 1)
 
-        serialPort?.also {serialPort->
-            val serialConfig = SerialConfig.Builder().baudRate(115200).commit()
-
+        serialPort?.also {
+            val serialConfig = SerialConfig.getDefaultConfig()
             protocol = SerialProtocol(
                 requireContext(),
-                serialPort,
+                it,
                 serialConfig,
-                object: ByteHandler {
-                    override fun handle(data: Byte, handlingHint: Int) {
-                        chartDrawer?.addSignal(-data.toFloat())
+                object: ShortHandler {
+                    override fun handle(data: Short, handlingHint: Int) {
+                        chartDrawer!!.addSignal(data.toFloat())
                     }
-                }, batch, 50)
+                }, batch, 50, doHandShake)
 
-            if (doHandShake) {
-                protocol?.handShake()
-                enableButtons()
-            }
+            enableButtons()
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        navController = Navigation.findNavController(view)
-        setupButtons()
     }
 
     private fun enableButtons() {
@@ -117,26 +107,29 @@ class ChartFragment : Fragment() {
         stopButton.isEnabled = true
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
+        setupButtons()
+        setupDeviceInfo()
+    }
+
     private fun setupButtons() {
         startButton.setOnClickListener {
             startButton.text = "그래프 구현중"
             startButton.isClickable = false
-
-            chartDrawer = ChartDrawer(batch, 30f,30f)
-            chartDrawer?.start()
-            allocProtocol(false)
-            protocol?.start()
+            initiateWorker()
         }
 
         stopButton.setOnClickListener {
             startButton.text = "Start"
             startButton.isClickable = true
-
-            protocol?.interrupt()
-            protocol = null
-            chartDrawer?.interrupt()
-            chartDrawer = null
+            interruptWorker()
         }
+    }
+
+    private fun setupDeviceInfo() {
+        device_info.setText("vendor: ${device?.vendorId}")
     }
 
     override fun onDestroyView() {
@@ -144,10 +137,18 @@ class ChartFragment : Fragment() {
         interruptWorker()
     }
 
+    private fun initiateWorker() {
+        allocProtocol(false)
+        chartDrawer = ChartDrawer(batch, 30f,30f)
+        chartDrawer!!.start()
+        protocol!!.setupInputStream()
+        protocol!!.start()
+    }
+
     private fun interruptWorker() {
+        protocol?.interrupt()
         chartDrawer?.interrupt()
         chartDrawer = null
-        protocol?.interrupt()
         protocol = null
     }
 
@@ -167,9 +168,8 @@ class ChartFragment : Fragment() {
 
         private fun initChartData(): LineData {
             val entries: ArrayList<Entry> = ArrayList()
-            var dataSet = LineDataSet(entries, "input")
-
             entries.add(Entry(0F , 0F))
+            val dataSet = LineDataSet(entries, "input")
 
             dataSet.setDrawValues(false)
             dataSet.setDrawCircles(false)
@@ -179,13 +179,12 @@ class ChartFragment : Fragment() {
             return LineData(dataSet)
         }
 
-        private fun updateChart(initTime : Long , data: LineData) {
-            //val timeElapsed = System.currentTimeMillis() - initTime
+        private fun updateChart(data: LineData) {
             lineChart.setVisibleXRangeMaximum(max)
             lineChart.setVisibleXRangeMinimum(min)
-            lineChart.moveViewToX((data.entryCount.toFloat()))
+            lineChart.moveViewToX(data.entryCount.toFloat())
 
-            newestSignal.forEachIndexed {index, value->
+            newestSignal.forEach {value->
                 data.addEntry(Entry((data.entryCount.toFloat()/10), value), 0)
             }
             data.notifyDataChanged()
@@ -195,7 +194,7 @@ class ChartFragment : Fragment() {
         }
 
         private fun drawChart(){
-            val initTime = System.currentTimeMillis()
+            //val initTime = System.currentTimeMillis()
             val data = initChartData()
             lineChart.data = data
 
@@ -205,7 +204,7 @@ class ChartFragment : Fragment() {
                         lock.wait()
                     }
                     else {
-                        updateChart(initTime, data)
+                        updateChart(data)
                         newestSignal.clear()
                     }
                 }
@@ -225,6 +224,7 @@ class ChartFragment : Fragment() {
             try {
                 if (ACTION_USB_PERMISSION == intent.action) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        Toast.makeText(requireContext(), "permission granted", Toast.LENGTH_SHORT).show()
                         device?.apply {
                             allocProtocol(true)
                         }

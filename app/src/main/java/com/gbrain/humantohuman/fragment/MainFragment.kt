@@ -117,8 +117,8 @@ class MainFragment : Fragment() {
         private var device: UsbDevice? = null
 
         private val ARDUINO_VENDOR = 3368
-        private val CHX_VENDOR = 6890
-        private val AVAILABLE_VENDOR_IDS = arrayListOf(ARDUINO_VENDOR, 9025, CHX_VENDOR)
+        private val CHX_VENDOR = 6790
+        private val AVAILABLE_VENDOR_IDS = arrayListOf(CHX_VENDOR, ARDUINO_VENDOR, 9025)
 
         init {
             device = searchDevice()
