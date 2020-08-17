@@ -11,36 +11,36 @@
     <ImageView
         android:id="@+id/btn_chart"
         style="?android:borderlessButtonStyle"
-        android:layout_width="280dp"
-        android:layout_height="350dp"
-        android:layout_marginTop="140dp"
+        android:layout_width="157dp"
+        android:layout_height="139dp"
+        android:layout_marginBottom="112dp"
         android:src="@drawable/graphicon"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.196"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/btn_guide"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="64dp"
+        android:layout_width="128dp"
+        android:layout_height="135dp"
+        android:layout_marginBottom="116dp"
         android:src="@drawable/guide_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.335"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_chart" />
+        app:layout_constraintHorizontal_bias="0.805"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/btn_info"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="70dp"
+        android:layout_width="27dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/info_icon"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.683"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_chart" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <TextView
         android:id="@+id/device_status"
@@ -54,6 +54,18 @@
         android:textColor="@color/white"
         android:textSize="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"
+        android:text="@string/app_description"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
