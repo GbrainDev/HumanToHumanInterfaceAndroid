@@ -6,16 +6,21 @@
     <string name="device_status_lost">Usb Connection : Disconnected</string>
     <string name="app_description">App Version : v1.0 \n\nDeveloped by GBrain \n </string>
     <string name="guide_title">GBrain Wireless \nHuman to Human Interface \nGuide</string>
-    <string name="guide_description">
+    <string name="guide_description_eng">
         1. Patch emg electrodes on your arm \n\n
         2. Turn On Sender\'s Power\n\n
         3. Turn on Receiver\'s Power \n\n
         4. Connect Sender and Receiver with Usb cable \n\n
         5. When Usb Connection status turns \"Connected\", go to Chart menu \n\n
         6. On Chart menu
-
-
-
+    </string>
+    <string name="guide_description_kor">
+        1. 한글 버전입니다\n\n
+        2. 한국\n\n
+        3. 한국 \n\n
+        4. 한국 \n\n
+        5. When Usb Connection status turns \"Connected\", go to Chart menu \n\n
+        6. On Chart menu
     </string>
     <string name="connection_info">Connection Info: \n0 device \nList: </string>
 </resources>
