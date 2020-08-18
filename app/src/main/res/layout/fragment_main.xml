@@ -11,36 +11,35 @@
     <ImageView
         android:id="@+id/btn_chart"
         style="?android:borderlessButtonStyle"
-        android:layout_width="280dp"
-        android:layout_height="350dp"
-        android:layout_marginTop="140dp"
-        android:src="@drawable/graphicon"
+        android:layout_width="127dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="88dp"
+        android:src="@drawable/ic_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.228"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/btn_guide"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="64dp"
+        android:layout_width="108dp"
+        android:layout_height="117dp"
+        android:layout_marginBottom="88dp"
         android:src="@drawable/guide_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.335"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_chart" />
+        app:layout_constraintHorizontal_bias="0.801"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/btn_info"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="70dp"
+        android:layout_width="27dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="20dp"
         android:src="@drawable/info_icon"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.683"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_chart" />
+        app:layout_constraintTop_toBottomOf="@+id/textView_info" />
 
     <TextView
         android:id="@+id/device_status"
@@ -56,5 +55,57 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="344dp"
+        android:fontFamily="monospace"
+        android:text="@string/app_description"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/title"
+        android:textColor="#4A4747"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/device_status" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Press Start"
+        app:layout_constraintBottom_toTopOf="@+id/btn_chart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.271"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/itemImage"
+        android:layout_width="226dp"
+        android:layout_height="139dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/ic_arduinouno"
+        app:layout_constraintBottom_toTopOf="@+id/textView_info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_title"
+        app:layout_constraintVertical_bias="0.228" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
