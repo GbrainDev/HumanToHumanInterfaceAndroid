@@ -4,11 +4,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 
 class SerialPortProvider private constructor(private val context: Context, private val deviceType: DeviceType) {
     var manager: UsbManager
+        private set
     var device: UsbDevice? = null
+        private set
 
     private val aSubsribers = HashMap<String, DeviceAttachedListener>()
     private val dSubsribers = HashMap<String, DeviceDettachedListener>()
@@ -72,6 +75,10 @@ class SerialPortProvider private constructor(private val context: Context, priva
             Intent(ACTION_USB_PERMISSION), 0
         )
         manager.requestPermission(device, permissionIntent)
+    }
+
+    fun getOpened(): UsbDeviceConnection {
+        return manager.openDevice(device)
     }
 
     interface DeviceAttachedListener {

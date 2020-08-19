@@ -11,15 +11,17 @@
   <component name="ChangeListManager">
     <list default="true" id="af99c8c2-22f3-4e15-95f5-3c5b533bdc0a" name="Default Changelist" comment="Change Serial Library from UsbSerial to usb-serial-for-android">
       <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/gbrain/humantohuman/fragment/ChartFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/gbrain/humantohuman/fragment/ChartFragment.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/gbrain/humantohuman/serialprovider/SerialPortProvider.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/gbrain/humantohuman/serialprovider/SerialPortProvider.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="R3CM50AZA3R" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -342,12 +344,13 @@
       <screen x="48" y="23" width="1392" height="877" />
     </state>
     <state x="148" y="124" width="1192" height="676" key="com.android.tools.idea.avdmanager.AvdListDialog/48.23.1392.877@48.23.1392.877" timestamp="1597740840908" />
-    <state x="412" y="313" key="com.intellij.ide.util.TipDialog" timestamp="1597759644604">
-      <screen x="52" y="23" width="1388" height="877" />
+    <state x="413" y="313" key="com.intellij.ide.util.TipDialog" timestamp="1597794405541">
+      <screen x="54" y="23" width="1386" height="877" />
     </state>
     <state x="374" y="298" key="com.intellij.ide.util.TipDialog/0.0.1440.900@0.0.1440.900" timestamp="1597218654697" />
     <state x="369" y="282" key="com.intellij.ide.util.TipDialog/48.0.1392.900/-145.-1129.2048.1129@48.0.1392.900" timestamp="1597070358873" />
     <state x="412" y="313" key="com.intellij.ide.util.TipDialog/52.23.1388.877@52.23.1388.877" timestamp="1597759644603" />
+    <state x="413" y="313" key="com.intellij.ide.util.TipDialog/54.23.1386.877@54.23.1386.877" timestamp="1597794405541" />
     <state x="341" y="80" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1597741433672">
       <screen x="48" y="23" width="1392" height="877" />
     </state>
