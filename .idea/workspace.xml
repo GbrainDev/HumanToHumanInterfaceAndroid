@@ -18,7 +18,6 @@
       <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/classAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/classAnalysis.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/jarAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/jarAnalysis.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/javaCompile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.1.1/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/gbrain/humantohuman/fragment/ChartFragment.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/gbrain/humantohuman/fragment/ChartFragment.kt" afterDir="false" />
@@ -59,7 +58,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="usb_device" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -278,10 +277,11 @@
     <option name="LAST_COMMIT_MESSAGE" value="Add feature to get UsbDeviceConnection from SerialPortProvider" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="320" y="115" key="#Auto_Import" timestamp="1597217298550">
-      <screen x="0" y="0" width="1440" height="900" />
+    <state x="362" y="135" key="#Auto_Import" timestamp="1597814294382">
+      <screen x="54" y="23" width="1386" height="877" />
     </state>
     <state x="320" y="115" key="#Auto_Import/0.0.1440.900@0.0.1440.900" timestamp="1597217298550" />
+    <state x="362" y="135" key="#Auto_Import/54.23.1386.877@54.23.1386.877" timestamp="1597814294382" />
     <state x="440" y="100" key="#HumanToHuman-app" timestamp="1597800179733">
       <screen x="54" y="23" width="1386" height="877" />
     </state>

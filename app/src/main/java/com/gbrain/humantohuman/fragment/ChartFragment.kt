@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Bundle
-import android.service.autofill.CharSequenceTransformation
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +25,7 @@ import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 import kotlinx.android.synthetic.main.fragment_chart.*
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.Executors
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -43,8 +43,9 @@ class ChartFragment : Fragment(),
     lateinit var navController: NavController
 
     var chartDrawer: ChartDrawer? = null
-    var batch = 30
+    var batch = 20
 
+    lateinit var port: UsbSerialPort
     var doSignalHandle = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,6 +120,7 @@ class ChartFragment : Fragment(),
         chartDrawer = ChartDrawer(batch, 30f, 30f)
         chartDrawer!!.start()
         doSignalHandle = true
+        port.write(ByteArray(8), 3000)
     }
 
     private fun interruptWorker() {
@@ -228,14 +230,13 @@ class ChartFragment : Fragment(),
     private fun setupSignalHandling() {
         val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(portProvider.manager)
         val driver = drivers.get(0)
-        val port: UsbSerialPort = driver.ports.get(0)
+        port = driver.ports.get(0)
         port.open(portProvider.getOpened())
         port.setParameters(9600, UsbSerialPort.DATABITS_8,
                             UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
 
         val iomanager = SerialInputOutputManager(port, this)
         Executors.newSingleThreadExecutor().submit(iomanager)
-        port.write(ByteArray(1), 1000)
     }
 
     private fun textViewAppend(textView: TextView, text: String) {
@@ -251,10 +252,27 @@ class ChartFragment : Fragment(),
         Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
     }
 
-    val byteBuffer = ByteBuffer.allocate(400)
+    val sb = StringBuilder()
+    val limit = 4*batch
     override fun onNewData(data: ByteArray?) {
         if (doSignalHandle && data != null) {
-            byteBuffer.put(data)
+            sb.append(String(data))
+
+            if (sb.length > limit) {
+                val hasRemain = sb.length != limit
+                val remains = sb.slice(40 until sb.length)
+                val signals = sb.toString()
+                for (i in 0 until batch) {
+                    val signal = signals.slice(4*i .. 4*i + 3)
+                    val signalFloat = signal.toInt().toFloat()
+                    chartDrawer?.addSignal(signalFloat)
+                    textViewAppend(logcat, signal)
+                }
+                sb.clear()
+
+                if (hasRemain)
+                    sb.append(remains)
+            }
         }
     }
 
