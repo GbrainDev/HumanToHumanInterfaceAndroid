@@ -78,8 +78,6 @@ class ChartFragment : Fragment(),
     }
 
     override fun preDeviceDetach(usbDevice: UsbDevice) {
-        Toast.makeText(requireContext(), "Device Detached", Toast.LENGTH_SHORT).show()
-        Thread.sleep(3000)
         interruptWorker()
     }
 
@@ -124,9 +122,10 @@ class ChartFragment : Fragment(),
     }
 
     private fun interruptWorker() {
+        port.close()
+        doSignalHandle = false
         chartDrawer?.interrupt()
         chartDrawer = null
-        doSignalHandle = false
     }
 
     private fun setupDeviceInfo() {
@@ -249,7 +248,8 @@ class ChartFragment : Fragment(),
     }
 
     override fun onRunError(e: java.lang.Exception?) {
-        Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+        navController.popBackStack()
+        Toast.makeText(requireContext(), "Port Released", Toast.LENGTH_SHORT).show()
     }
 
     val sb = StringBuilder()
@@ -260,7 +260,7 @@ class ChartFragment : Fragment(),
 
             if (sb.length > limit) {
                 val hasRemain = sb.length != limit
-                val remains = sb.slice(40 until sb.length)
+                val remains = sb.slice(limit until sb.length)
                 val signals = sb.toString()
                 for (i in 0 until batch) {
                     val signal = signals.slice(4*i .. 4*i + 3)
