@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Bundle
+import android.service.autofill.CharSequenceTransformation
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 import kotlinx.android.synthetic.main.fragment_chart.*
+import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -228,11 +230,12 @@ class ChartFragment : Fragment(),
         val driver = drivers.get(0)
         val port: UsbSerialPort = driver.ports.get(0)
         port.open(portProvider.getOpened())
-        port.setParameters(115200, UsbSerialPort.DATABITS_8,
+        port.setParameters(9600, UsbSerialPort.DATABITS_8,
                             UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
 
         val iomanager = SerialInputOutputManager(port, this)
         Executors.newSingleThreadExecutor().submit(iomanager)
+        port.write(ByteArray(1), 1000)
     }
 
     private fun textViewAppend(textView: TextView, text: String) {
@@ -248,11 +251,16 @@ class ChartFragment : Fragment(),
         Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
     }
 
+    val byteBuffer = ByteBuffer.allocate(400)
     override fun onNewData(data: ByteArray?) {
-        if (doSignalHandle) {
-            data?.forEach {
-                chartDrawer?.addSignal(it.toFloat())
-            }
+        if (doSignalHandle && data != null) {
+            byteBuffer.put(data)
         }
+    }
+
+    private fun parseToHexStrings(data: ByteArray): List<CharSequence> {
+        val str = String(data)
+        str.subSequence(2, 5)
+        return listOf(str.subSequence(2, 5), str.subSequence(8, 11), str.subSequence(14, 17))
     }
 }
