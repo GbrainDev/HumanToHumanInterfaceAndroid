@@ -1,6 +1,5 @@
 package com.gbrain.humantohuman.fragment
 
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,19 +10,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.corndog.braoadcastprac.serialprotocol.SerialConfig
-import com.corndog.braoadcastprac.serialprotocol.SerialProtocol
-import com.felhr.usbserial.UsbSerialDevice
 import com.gbrain.humantohuman.R
+import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import dataprotocol.typehandle.ShortHandler
+import com.hoho.android.usbserial.driver.UsbSerialPort
+import com.hoho.android.usbserial.driver.UsbSerialProber
+import com.hoho.android.usbserial.util.SerialInputOutputManager
 import kotlinx.android.synthetic.main.fragment_chart.*
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.util.concurrent.Executors
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
     this ?: return
@@ -31,48 +34,53 @@ fun Fragment?.runOnUiThread(action: () -> Unit) {
     activity?.runOnUiThread(action)
 }
 
-class ChartFragment : Fragment() {
+class ChartFragment : Fragment(),
+    SerialPortProvider.DeviceAttachedListener,
+    SerialPortProvider.DeviceDettachedListener,
+    SerialInputOutputManager.Listener {
+
+    private lateinit var portProvider: SerialPortProvider
     lateinit var navController: NavController
 
-    lateinit var manager: UsbManager
-    var device: UsbDevice? = null
-
     var chartDrawer: ChartDrawer? = null
-    var protocol: SerialProtocol? = null
-    var batch = 25
+    var batch = 20
 
-    private val ACTION_USB_PERMISSION = "com.corndog.usb.USB_PERMISSION"
-    private val usbEventReceiver = UsbEventReceiver()
+    lateinit var port: UsbSerialPort
+    var doSignalHandle = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            device = it.getParcelable(UsbManager.EXTRA_DEVICE)
-            manager = requireContext().getSystemService(Context.USB_SERVICE) as UsbManager
-        }
+        subscribeProvider()
         runReceiver()
-        requestUsbPermission()
+    }
+
+    private fun subscribeProvider() {
+        portProvider = SerialPortProvider.getInstance()
+        portProvider.addDeviceAttachedListener("chart", this)
+        portProvider.addDeviceDetachedListener("chart" , this)
     }
 
     private fun runReceiver() {
         val context = requireContext()
-        val filter = IntentFilter().apply {
-            addAction(ACTION_USB_PERMISSION)
-            addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        }
+        val receiver = UsbPermissionReceiver()
+        val filter = IntentFilter(SerialPortProvider.ACTION_USB_PERMISSION)
 
         try {
-            context.unregisterReceiver(usbEventReceiver)
+            context.unregisterReceiver(receiver)
         } catch (e: Exception) {
         } finally {
-            context.registerReceiver(usbEventReceiver, filter)
+            context.registerReceiver(receiver, filter)
         }
     }
 
-    private fun requestUsbPermission() {
-        val permissionIntent = PendingIntent.getBroadcast(requireContext(), 0,
-            Intent(ACTION_USB_PERMISSION), 0)
-        manager.requestPermission(device, permissionIntent)
+    override fun postDeviceAttach(usbDevice: UsbDevice) {
+        portProvider.requestUsbPermission()
+    }
+
+    override fun preDeviceDetach(usbDevice: UsbDevice) {
+        Toast.makeText(requireContext(), "Device Detached", Toast.LENGTH_SHORT).show()
+        Thread.sleep(3000)
+        interruptWorker()
     }
 
     override fun onCreateView(
@@ -82,36 +90,16 @@ class ChartFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_chart, container, false)
     }
 
-    private fun allocProtocol(doHandShake: Boolean) {
-        val connection = manager.openDevice(device)
-        val serialPort = UsbSerialDevice.createUsbSerialDevice(UsbSerialDevice.CDC, device, connection, 1)
-
-        serialPort?.also {
-            val serialConfig = SerialConfig.getDefaultConfig()
-            protocol = SerialProtocol(
-                requireContext(),
-                it,
-                serialConfig,
-                object: ShortHandler {
-                    override fun handle(data: Short, handlingHint: Int) {
-                        chartDrawer!!.addSignal(data.toFloat())
-                    }
-                }, batch, 50, doHandShake)
-
-            enableButtons()
-        }
-    }
-
-    private fun enableButtons() {
-        startButton.isEnabled = true
-        stopButton.isEnabled = true
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         navController = Navigation.findNavController(view)
+
         setupButtons()
         setupDeviceInfo()
+
+        if (portProvider.isDeviceAllocated())
+            portProvider.requestUsbPermission()
     }
 
     private fun setupButtons() {
@@ -128,8 +116,21 @@ class ChartFragment : Fragment() {
         }
     }
 
+    private fun initiateWorker() {
+        chartDrawer = ChartDrawer(batch, 30f, 30f)
+        chartDrawer!!.start()
+        doSignalHandle = true
+        port.write(ByteArray(8), 3000)
+    }
+
+    private fun interruptWorker() {
+        chartDrawer?.interrupt()
+        chartDrawer = null
+        doSignalHandle = false
+    }
+
     private fun setupDeviceInfo() {
-        device_info.setText("vendor: ${device?.vendorId}")
+        device_info.setText("vendor: ${portProvider.getVendorId()}")
     }
 
     override fun onDestroyView() {
@@ -137,29 +138,15 @@ class ChartFragment : Fragment() {
         interruptWorker()
     }
 
-    private fun initiateWorker() {
-        allocProtocol(false)
-        chartDrawer = ChartDrawer(batch, 30f,30f)
-        chartDrawer!!.start()
-        protocol!!.setupInputStream()
-        protocol!!.start()
-    }
-
-    private fun interruptWorker() {
-        protocol?.interrupt()
-        chartDrawer?.interrupt()
-        chartDrawer = null
-        protocol = null
-    }
-
     inner class ChartDrawer(val batch: Int, val max: Float, val min: Float) : Thread() {
-        val lock = Object()
-        val newestSignal =  ArrayList<Float>(batch)
 
+        val lock = Object()
+
+        val newestSignal = ArrayList<Float>(batch)
         override fun run() {
             try {
                 drawChart()
-            } catch (e : InterruptedException){
+            } catch (e: InterruptedException) {
                 runOnUiThread {
                     Toast.makeText(context, "chart interrupted", Toast.LENGTH_SHORT).show()
                 }
@@ -168,7 +155,7 @@ class ChartFragment : Fragment() {
 
         private fun initChartData(): LineData {
             val entries: ArrayList<Entry> = ArrayList()
-            entries.add(Entry(0F , 0F))
+            entries.add(Entry(0F, 0F))
             val dataSet = LineDataSet(entries, "input")
 
             dataSet.setDrawValues(false)
@@ -184,8 +171,8 @@ class ChartFragment : Fragment() {
             lineChart.setVisibleXRangeMinimum(min)
             lineChart.moveViewToX(data.entryCount.toFloat())
 
-            newestSignal.forEach {value->
-                data.addEntry(Entry((data.entryCount.toFloat()/10), value), 0)
+            newestSignal.forEach { value ->
+                data.addEntry(Entry((data.entryCount.toFloat() / 10), value), 0)
             }
             data.notifyDataChanged()
 
@@ -193,8 +180,8 @@ class ChartFragment : Fragment() {
             lineChart.invalidate()
         }
 
-        private fun drawChart(){
-            //val initTime = System.currentTimeMillis()
+        private fun drawChart() {
+
             val data = initChartData()
             lineChart.data = data
 
@@ -202,8 +189,7 @@ class ChartFragment : Fragment() {
                 synchronized(lock) {
                     if (newestSignal.size < batch) {
                         lock.wait()
-                    }
-                    else {
+                    } else {
                         updateChart(data)
                         newestSignal.clear()
                     }
@@ -219,15 +205,18 @@ class ChartFragment : Fragment() {
         }
     }
 
-    inner class UsbEventReceiver: BroadcastReceiver() {
+    inner class UsbPermissionReceiver: BroadcastReceiver() {
+
         override fun onReceive(context: Context?, intent: Intent) {
             try {
-                if (ACTION_USB_PERMISSION == intent.action) {
+                if (SerialPortProvider.ACTION_USB_PERMISSION == intent.action) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        Toast.makeText(requireContext(), "permission granted", Toast.LENGTH_SHORT).show()
-                        device?.apply {
-                            allocProtocol(true)
-                        }
+                        Toast.makeText(requireContext(), "permission granted", Toast.LENGTH_SHORT)
+                            .show()
+
+                        setupSignalHandling()
+                        enableButtons()
+
                     } else if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
                         interruptWorker()
                         navController.popBackStack()
@@ -236,5 +225,60 @@ class ChartFragment : Fragment() {
             } catch (e: Exception) {
             }
         }
+    }
+
+    private fun setupSignalHandling() {
+        val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(portProvider.manager)
+        val driver = drivers.get(0)
+        port = driver.ports.get(0)
+        port.open(portProvider.getOpened())
+        port.setParameters(9600, UsbSerialPort.DATABITS_8,
+                            UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+
+        val iomanager = SerialInputOutputManager(port, this)
+        Executors.newSingleThreadExecutor().submit(iomanager)
+    }
+
+    private fun textViewAppend(textView: TextView, text: String) {
+        textView.setText(text)
+    }
+
+    private fun enableButtons() {
+        startButton.isEnabled = true
+        stopButton.isEnabled = true
+    }
+
+    override fun onRunError(e: java.lang.Exception?) {
+        Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+    }
+
+    val sb = StringBuilder()
+    val limit = 4*batch
+    override fun onNewData(data: ByteArray?) {
+        if (doSignalHandle && data != null) {
+            sb.append(String(data))
+
+            if (sb.length > limit) {
+                val hasRemain = sb.length != limit
+                val remains = sb.slice(40 until sb.length)
+                val signals = sb.toString()
+                for (i in 0 until batch) {
+                    val signal = signals.slice(4*i .. 4*i + 3)
+                    val signalFloat = signal.toInt().toFloat()
+                    chartDrawer?.addSignal(signalFloat)
+                    textViewAppend(logcat, signal)
+                }
+                sb.clear()
+
+                if (hasRemain)
+                    sb.append(remains)
+            }
+        }
+    }
+
+    private fun parseToHexStrings(data: ByteArray): List<CharSequence> {
+        val str = String(data)
+        str.subSequence(2, 5)
+        return listOf(str.subSequence(2, 5), str.subSequence(8, 11), str.subSequence(14, 17))
     }
 }
