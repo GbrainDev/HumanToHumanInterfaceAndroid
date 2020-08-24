@@ -12,6 +12,8 @@ class SerialPortProvider private constructor(private val context: Context, priva
         private set
     var device: UsbDevice? = null
         private set
+    var connection: UsbDeviceConnection? = null
+        private set
 
     private val aSubsribers = HashMap<String, DeviceAttachedListener>()
     private val dSubsribers = HashMap<String, DeviceDettachedListener>()
@@ -53,6 +55,8 @@ class SerialPortProvider private constructor(private val context: Context, priva
     fun deallocDevice() {
         if (device != null) {
             notifyPreDetached()
+            connection?.close()
+            connection = null
             device = null
         }
     }
@@ -78,7 +82,8 @@ class SerialPortProvider private constructor(private val context: Context, priva
     }
 
     fun getOpened(): UsbDeviceConnection {
-        return manager.openDevice(device)
+        connection = manager.openDevice(device)
+        return connection!!
     }
 
     interface DeviceAttachedListener {

@@ -11,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.gbrain.humantohuman.serialprovider.DeviceType
 import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 
+val SHARED_PREF_NAME = "com.gbrain.humantohuman.sharedpref"
+val SHARED_PREF_WIFI_NAME = "com.gbrain.humantohuman.sharedpref.wifiname"
+val SHARED_PREF_WIFI_PASSWD = "com.gbrain.humantohuman.sharedpref.wifipassword"
+
 class MainActivity: AppCompatActivity() {
 
     private val deviceType = DeviceType.PL2303
