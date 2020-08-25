@@ -47,13 +47,17 @@ class DeviceMacAdapter: RecyclerView.Adapter<DeviceMacAdapter.ViewHolder>() {
         }
 
         fun showNumber(num: Int) {
+            numberingTextView.setText((num+1).toString())
+            numberingTextView.setBackground(getColorDrawable(num))
+        }
+
+        private fun getColorDrawable(num: Int): Drawable {
             val colorArray = itemView.resources.getIntArray(R.array.deviceNumberingColorArray)
             val drawable: Drawable = AppCompatResources.getDrawable(itemView.context, R.drawable.drawable_round)!!
             val wrapped = DrawableCompat.wrap(drawable)
-            DrawableCompat.setTint(wrapped, colorArray.get(num));
 
-            numberingTextView.setText((num+1).toString())
-            numberingTextView.setBackground(wrapped)
+            DrawableCompat.setTint(wrapped, colorArray.get(num % colorArray.size));
+            return wrapped
         }
 
         fun showMacAddress(text: String) {

@@ -20,6 +20,7 @@ class EMGCommunication(private val context: Context,
     private var iomanager: SerialInputOutputManager? = null
     private var execService: ExecutorService? = null
     private var TIMEOUT = 10000
+    private var isWifiDevicePhase = true
 
     init {
         wifiDeviceInfoPhase()
@@ -83,10 +84,14 @@ class EMGCommunication(private val context: Context,
     }
 
     fun startSignalingPhase() {
-        releasePhase()
+        if (isWifiDevicePhase)
+            releasePhase()
+
         setupNewPhase()
         setAsyncListener(signalPhaseListener)
         sendInitiator()
+
+        isWifiDevicePhase = false
     }
 
     private fun sendInitiator() {
