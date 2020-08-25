@@ -24,6 +24,7 @@ import com.gbrain.humantohuman.devicemacadapter.DeviceMacAdapter
 import com.gbrain.humantohuman.emgcomm.EMGCommunication
 import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 import com.hoho.android.usbserial.util.SerialInputOutputManager
+import dataprotocol.typehandle.TypeHandler
 import kotlinx.android.synthetic.main.fragment_chart.*
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
@@ -144,8 +145,6 @@ class ChartFragment : Fragment(),
             try {
                 if (SerialPortProvider.ACTION_USB_PERMISSION == intent.action) {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        Toast.makeText(requireContext(), "permission granted", Toast.LENGTH_SHORT)
-                            .show()
                         setupCommunication()
                         enableButtons()
                     }
@@ -172,10 +171,12 @@ class ChartFragment : Fragment(),
 
     inner class SignalPhaseListener: StringChunkHandler(5, batch) {
 
-        override fun handleChunk(chunk: String) {
-            if (chunk.contains("*")) {
-                val value = chunk.replace("*", "")
-                chartDrawer?.addSignal(value.toFloat())
+        init {
+            addChunkHandler {data, handlingHint->
+                if (data.contains("*")) {
+                    val value = data.replace("*", "")
+                    chartDrawer?.addSignal(value.toFloat())
+                }
             }
         }
 
@@ -186,15 +187,17 @@ class ChartFragment : Fragment(),
     }
 
     inner class DeviceInfoPhaseListener: StringChunkHandler(17, 1) {
-        override fun handleChunk(chunk: String) {
-            val macAddress = MacAddress.fromString(chunk)
-            runOnUiThread {
-                deviceMacListAdapter.addItem(chunk)
+        init {
+            addChunkHandler { data, handlingHint ->
+                runOnUiThread {
+                    deviceMacListAdapter.addItem(data)
+                }
             }
         }
 
         override fun onRunError(e: java.lang.Exception?) {
-
+            Toast.makeText(requireContext(), "Port Released", Toast.LENGTH_SHORT).show()
+            navController.popBackStack()
         }
     }
 }
@@ -202,6 +205,7 @@ class ChartFragment : Fragment(),
 abstract class StringChunkHandler(val unitSize: Int, val batch: Int): SerialInputOutputManager.Listener {
     private val sb = StringBuilder()
     private val limit = unitSize * batch
+    protected var chunkHandler: TypeHandler<String>? = null
 
     override fun onNewData(data: ByteArray?) {
         if (data != null) {
@@ -212,7 +216,7 @@ abstract class StringChunkHandler(val unitSize: Int, val batch: Int): SerialInpu
                 val signals = sb.toString()
                 for (i in 0 until batch) {
                     val signal = signals.slice(unitSize*i .. unitSize*i + unitSize - 1)
-                    handleChunk(signal)
+                    chunkHandler?.invoke(signal, 0)
                 }
                 sb.clear()
                 if (hasRemain)
@@ -221,6 +225,9 @@ abstract class StringChunkHandler(val unitSize: Int, val batch: Int): SerialInpu
         }
     }
 
-    abstract fun handleChunk(chunk: String)
+    protected fun addChunkHandler(handler: TypeHandler<String>) {
+        this.chunkHandler = handler
+    }
+
     abstract override fun onRunError(e: java.lang.Exception?)
 }
