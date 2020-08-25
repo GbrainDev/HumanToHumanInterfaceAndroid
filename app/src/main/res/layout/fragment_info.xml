@@ -6,18 +6,175 @@
     android:layout_height="match_parent"
     tools:context=".fragment.InfoFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/app_ver_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/drawable_round_rect"
+        android:backgroundTint="@color/g_red"
+        android:elevation="1dp"
+        android:padding="5dp"
+        android:text="App Version"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/web_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.21" />
+
+    <TextView
+        android:id="@+id/group_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/drawable_round_rect"
+        android:backgroundTint="@color/g_blue"
+        android:elevation="1dp"
+        android:padding="5dp"
+        android:text="Group"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.146"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_ver_label" />
+
+    <TextView
+        android:id="@+id/developer_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/drawable_round_rect"
+        android:backgroundTint="@color/g_orange"
+        android:elevation="1dp"
+        android:padding="5dp"
+        android:text="Developers"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.057"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/group_label" />
+
+    <TextView
+        android:id="@+id/license_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/drawable_round_rect"
+        android:backgroundTint="@color/g_bean"
+        android:elevation="1dp"
+        android:padding="5dp"
+        android:text="Licenses"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.101"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/developer_label" />
+
+    <TextView
+        android:id="@+id/app_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/app_description"
+        android:background="@drawable/drawable_round_rect"
+        android:elevation="1dp"
+        android:padding="7dp"
+        android:text="v1.0"
         android:textSize="14dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/app_ver_label"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.02"
+        app:layout_constraintStart_toEndOf="@+id/app_ver_label"
+        app:layout_constraintTop_toTopOf="@+id/app_ver_label" />
+
+    <TextView
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/drawable_round_rect"
+        android:elevation="1dp"
+        android:padding="7dp"
+        android:text="gBrain, Inc."
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="@+id/group_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.024"
+        app:layout_constraintStart_toEndOf="@+id/group_label"
+        app:layout_constraintTop_toTopOf="@+id/group_label"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/developer1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/drawable_round_rect"
+        android:elevation="1dp"
+        android:padding="7dp"
+        android:text="gamsungcoding"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="@+id/developer_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.026"
+        app:layout_constraintStart_toEndOf="@+id/group_label"
+        app:layout_constraintTop_toTopOf="@+id/developer_label"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/developer2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/drawable_round_rect"
+        android:elevation="1dp"
+        android:padding="7dp"
+        android:text="/bin/choo"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="@+id/developer1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.08"
+        app:layout_constraintStart_toEndOf="@+id/developer1"
+        app:layout_constraintTop_toTopOf="@+id/developer1" />
+
+    <TextView
+        android:id="@+id/developer3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/drawable_round_rect"
+        android:elevation="1dp"
+        android:padding="7dp"
+        android:text="juyoung518"
+        android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.025"
+        app:layout_constraintStart_toEndOf="@+id/developer_label"
+        app:layout_constraintTop_toBottomOf="@+id/developer2" />
+
+    <TextView
+        android:id="@+id/license_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/drawable_round_rect"
+        android:elevation="1dp"
+        android:padding="7dp"
+        android:text="Open Source Licenses"
+        android:textColor="@color/g_blue"
+        android:textSize="14dp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="@+id/license_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.037"
+        app:layout_constraintStart_toEndOf="@+id/developer_label"
+        app:layout_constraintTop_toTopOf="@+id/license_label"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/web_image"
@@ -27,7 +184,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.51" />
 
     <TextView
         android:id="@+id/textView2"
@@ -35,8 +193,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Visit Our Website"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/web_image"
+        app:layout_constraintStart_toStartOf="@+id/web_image"
         app:layout_constraintTop_toBottomOf="@+id/web_image" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
