@@ -6,7 +6,7 @@
     <string name="device_status_lost">Usb Connection : Disconnected</string>
     <string name="app_description">App Version : v1.0 \n\nDeveloped by GBrain \n </string>
     <string name="guide_title">GBrain Wireless \nHuman to Human Interface \nGuide</string>
-    <string name="title">GBrain Human to Human Interface</string>
+    <string name="title">GBrain \nHuman to Human Interface</string>
     <string name="guide_description_eng">
         1. Patch EMG electrodes on your arm \n\n
         2. Turn On Sender\'s Power\n\n

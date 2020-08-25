@@ -1,5 +1,6 @@
 package com.gbrain.humantohuman.fragment
 
+import android.bluetooth.BluetoothClass
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -39,18 +40,18 @@ class ChartFragment : Fragment(),
     lateinit var emgComm: EMGCommunication
     var chartDrawer: ChartDrawer? = null
     var batch = 10
-    val deviceMacListAdapter = DeviceMacAdapter()
+    lateinit var deviceMacListAdapter: DeviceMacAdapter
 
     lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupRecyclerView()
         subscribeProvider()
         runReceiver()
     }
 
     private fun setupRecyclerView() {
+        deviceMacListAdapter = DeviceMacAdapter()
         device_recycler.adapter = deviceMacListAdapter
         device_recycler.layoutManager = LinearLayoutManager(requireContext(),
                                             LinearLayoutManager.VERTICAL, false)
@@ -97,6 +98,7 @@ class ChartFragment : Fragment(),
 
         setupButtons()
         setupDeviceInfo()
+        setupRecyclerView()
 
         if (portProvider.isDeviceAllocated())
             portProvider.requestUsbPermission()
@@ -186,7 +188,9 @@ class ChartFragment : Fragment(),
     inner class DeviceInfoPhaseListener: StringChunkHandler(17, 1) {
         override fun handleChunk(chunk: String) {
             val macAddress = MacAddress.fromString(chunk)
-            deviceMacListAdapter.addItem(macAddress)
+            runOnUiThread {
+                deviceMacListAdapter.addItem(chunk)
+            }
         }
 
         override fun onRunError(e: java.lang.Exception?) {

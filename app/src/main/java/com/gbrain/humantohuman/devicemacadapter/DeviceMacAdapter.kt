@@ -10,11 +10,11 @@ import com.gbrain.humantohuman.R
 
 class DeviceMacAdapter(): RecyclerView.Adapter<DeviceMacAdapter.ViewHolder>() {
     private var inflater: LayoutInflater? = null
-    private val deviceMacList = ArrayList<MacAddress>()
+    private val deviceMacList = ArrayList<String>()
 
-    fun addItem(item: MacAddress) {
+    fun addItem(item: String) {
         deviceMacList.add(item)
-        notifyItemInserted(deviceMacList.size - 1)
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,7 +28,7 @@ class DeviceMacAdapter(): RecyclerView.Adapter<DeviceMacAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val macAddress = deviceMacList[position]
         holder.showNumber(position)
-        holder.showMacAddress(macAddress.toOuiString())
+        holder.showMacAddress(macAddress)
     }
 
     override fun getItemCount(): Int {
