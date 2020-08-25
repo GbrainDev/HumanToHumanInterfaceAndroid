@@ -160,11 +160,8 @@ class ChartFragment : Fragment(),
     inner class SignalPhaseListener: StringChunkHandler(5, batch) {
 
         override fun handleChunk(chunk: String) {
-            if (!chunk.contains("*"))
-                textViewAppend(logcat, "fucked number")
-            else {
+            if (chunk.contains("*")) {
                 val value = chunk.replace("*", "")
-                textViewAppend(logcat, value)
                 chartDrawer?.addSignal(value.toFloat())
             }
         }
@@ -177,7 +174,6 @@ class ChartFragment : Fragment(),
 
     inner class DeviceInfoPhaseListener: StringChunkHandler(17, 1) {
         override fun handleChunk(chunk: String) {
-            textViewAppend(logcat, chunk)
         }
 
         override fun onRunError(e: java.lang.Exception?) {
