@@ -15,12 +15,11 @@ class SettingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_setting)
 
         wifi_button.setOnClickListener{
-            val sharedPref = getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+            val sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
 
             with (sharedPref.edit()){
-                putString("Wifi_ID", wifi_name_input.toString())
-                putString("Wifi_PW", wifi_pw_input.toString())
+                putString(SHARED_PREF_WIFI_NAME, wifi_name_input.text.toString())
+                putString(SHARED_PREF_WIFI_PASSWD, wifi_pw_input.text.toString())
                 commit()
             }
 

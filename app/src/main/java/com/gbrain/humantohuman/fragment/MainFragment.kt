@@ -74,6 +74,7 @@ class MainFragment : Fragment(),
                 activity?.getDrawable(R.drawable.drawable_device_status_detected)
             device_status.text =
                 activity?.getString(R.string.device_status_detected) + "\nVendor ID:" + portProvider.getVendorId()
+
         } else {
             device_status.background =
                 activity?.getDrawable(R.drawable.drawable_device_status_lost)

@@ -3,6 +3,8 @@ package com.gbrain.humantohuman.emgcomm
 import android.content.Context
 import android.widget.Toast
 import com.gbrain.humantohuman.SHARED_PREF_NAME
+import com.gbrain.humantohuman.SHARED_PREF_WIFI_NAME
+import com.gbrain.humantohuman.SHARED_PREF_WIFI_PASSWD
 import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
@@ -49,13 +51,13 @@ class EMGCommunication(private val context: Context,
 
     private fun sendWifiInfo() {
         val pref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-//        val wifiName = pref.getString(SHARED_PREF_WIFI_NAME, "")
-//        val wifiPassword = pref.getString(SHARED_PREF_WIFI_PASSWD, "")
+        val wifiName = pref.getString(SHARED_PREF_WIFI_NAME, "")
+        val wifiPassword = pref.getString(SHARED_PREF_WIFI_PASSWD, "")
 
-        val wifiName = "gbrain"
-        val wifiPassword = "gbrain1908!"
-        sendString(wifiName, 40)
-        sendString(wifiPassword, 40)
+//        val wifiName = "gbrain"
+//        val wifiPassword = "gbrain1908!"
+        sendString(wifiName!!, 40)
+        sendString(wifiPassword!!, 40)
         log("$wifiName, $wifiPassword")
     }
 
