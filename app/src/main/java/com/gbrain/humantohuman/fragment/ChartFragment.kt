@@ -6,15 +6,12 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
-import android.net.MacAddress
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -111,7 +108,7 @@ class ChartFragment : Fragment(),
     private fun activateWorkers() {
         chartDrawer = ChartDrawer(lineChart, batch, 30f, 30f)
         chartDrawer!!.start()
-        emgComm.startSignalListening()
+        emgComm.startSignalingPhase()
     }
 
     private fun deactivateWorkers() {
@@ -146,8 +143,8 @@ class ChartFragment : Fragment(),
     }
 
     private fun setupCommunication() {
-        emgComm = EMGCommunication(requireContext(),
-            portProvider.manager, portProvider.getOpened(),
+        emgComm = EMGCommunication(requireContext(), portProvider,
+            DeviceInfoPhaseListener(),
             SignalPhaseListener())
     }
 
@@ -175,6 +172,16 @@ class ChartFragment : Fragment(),
         override fun onRunError(e: java.lang.Exception?) {
             Toast.makeText(requireContext(), "Port Released", Toast.LENGTH_SHORT).show()
             navController.popBackStack()
+        }
+    }
+
+    inner class DeviceInfoPhaseListener: StringChunkHandler(17, 1) {
+        override fun handleChunk(chunk: String) {
+            textViewAppend(logcat, chunk)
+        }
+
+        override fun onRunError(e: java.lang.Exception?) {
+
         }
     }
 }

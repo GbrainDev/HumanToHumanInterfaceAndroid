@@ -1,51 +1,42 @@
 package com.gbrain.humantohuman.emgcomm
 
 import android.content.Context
-import android.hardware.usb.UsbDeviceConnection
-import android.hardware.usb.UsbManager
-import android.net.MacAddress
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import com.gbrain.humantohuman.SHARED_PREF_NAME
-import com.gbrain.humantohuman.SHARED_PREF_WIFI_NAME
-import com.gbrain.humantohuman.SHARED_PREF_WIFI_PASSWD
+import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
 class EMGCommunication(private val context: Context,
-                       manager: UsbManager,
-                       private val devconn: UsbDeviceConnection,
+                       private val portProvider: SerialPortProvider,
+                       private val deviceInfoPhaseListener: SerialInputOutputManager.Listener,
                        private val signalPhaseListener: SerialInputOutputManager.Listener) {
 
     private lateinit var serialPort: UsbSerialPort
-    private val deviceListReader: Thread = Thread {
-        try {
-            readDeviceInfo()
-        } catch (e: Exception) {
-        }
-    }
-    lateinit var deviceList: ArrayList<MacAddress>
     private var iomanager: SerialInputOutputManager? = null
-    private var execService: Future<*>? = null
+    private var execService: ExecutorService? = null
     private var TIMEOUT = 10000
 
     init {
-        setupSerialComm(manager)
-        sendWifiInfo()
-        deviceListReader.start()
+        wifiDeviceInfoPhase()
     }
 
-    private fun setupSerialComm(manager: UsbManager) {
-        val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+    private fun wifiDeviceInfoPhase() {
+        setupNewPhase()
+        sendWifiInfo()
+        setAsyncListener(deviceInfoPhaseListener)
+    }
+
+    private fun setupNewPhase() {
+        val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(portProvider.manager)
         val driver = drivers.get(0)
+
         serialPort = driver.ports.get(0)
-        serialPort.open(devconn)
+        serialPort.open(portProvider.getOpened())
 
         setupSerialParams()
     }
@@ -74,47 +65,36 @@ class EMGCommunication(private val context: Context,
         serialPort.write(buffer.array(), TIMEOUT)
     }
 
-    private fun readDeviceInfo() {
-        val rBytes = ByteArray(48*30)
-        val readLen = serialPort.read(rBytes, TIMEOUT)
-        if (readLen != rBytes.size)
-            throw RuntimeException("Invalidated Device Information")
-
-        deviceList = ArrayList()
-        for (i in 0 until 30) {
-            val sBytes = rBytes.sliceArray(48*i until 48*(i+1))
-            val macAddress = MacAddress.fromBytes(sBytes)
-            if (nullMacAddressString != macAddress.toOuiString()) {
-                deviceList.add(macAddress)
-                log(macAddress.toOuiString())
-            }
-        }
-    }
-
     private fun log(text: String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    fun startSignalListening() {
-        deviceListReader.interrupt()
-        setupAsyncListener(signalPhaseListener)
-        Thread.sleep(2500)
-        initiatingBytes()
-    }
-
-    private fun setupAsyncListener(listener: SerialInputOutputManager.Listener) {
-        iomanager?.stop()
+    private fun setAsyncListener(listener: SerialInputOutputManager.Listener) {
+        Thread.sleep(1000)
         iomanager = SerialInputOutputManager(serialPort, listener)
-        execService = Executors.newSingleThreadExecutor().submit(iomanager)
+        execService = Executors.newSingleThreadExecutor()
+        execService?.submit(iomanager)
     }
 
-    private fun initiatingBytes() {
+    private fun releasePhase() {
+        iomanager?.stop()
+        execService?.shutdownNow()
+        serialPort.close()
+    }
+
+    fun startSignalingPhase() {
+        releasePhase()
+        setupNewPhase()
+        setAsyncListener(signalPhaseListener)
+        sendInitiator()
+    }
+
+    private fun sendInitiator() {
         serialPort.write(ByteArray(1), TIMEOUT)
     }
 
     fun stopSignalListening() {
-        iomanager?.stop()
-        execService?.cancel(true)
+        releasePhase()
     }
 
     companion object {
