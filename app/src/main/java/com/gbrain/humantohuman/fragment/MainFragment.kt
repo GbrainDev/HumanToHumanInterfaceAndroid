@@ -74,12 +74,14 @@ class MainFragment : Fragment(),
                 activity?.getDrawable(R.drawable.drawable_device_status_detected)
             device_status.text =
                 activity?.getString(R.string.device_status_detected) + "\nVendor ID:" + portProvider.getVendorId()
+            btn_chart.setBackgroundResource(R.drawable.ic_chart_enter_blue)
 
         } else {
             device_status.background =
                 activity?.getDrawable(R.drawable.drawable_device_status_lost)
             device_status.text =
                 activity?.getString(R.string.device_status_lost)
+            btn_chart.setBackgroundResource(R.drawable.ic_chart_enter_gray)
         }
         btn_chart.isEnabled = deviceDetected
         device_status.startAnimation(AnimationUtils.loadAnimation(context, android.R.anim.fade_in))
