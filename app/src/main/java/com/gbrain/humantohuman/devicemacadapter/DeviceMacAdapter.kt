@@ -1,14 +1,16 @@
 package com.gbrain.humantohuman.devicemacadapter
 
-import android.net.MacAddress
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.gbrain.humantohuman.R
 
-class DeviceMacAdapter(): RecyclerView.Adapter<DeviceMacAdapter.ViewHolder>() {
+class DeviceMacAdapter: RecyclerView.Adapter<DeviceMacAdapter.ViewHolder>() {
     private var inflater: LayoutInflater? = null
     private val deviceMacList = ArrayList<String>()
 
@@ -45,7 +47,13 @@ class DeviceMacAdapter(): RecyclerView.Adapter<DeviceMacAdapter.ViewHolder>() {
         }
 
         fun showNumber(num: Int) {
-            numberingTextView.setText(num.toString())
+            val colorArray = itemView.resources.getIntArray(R.array.deviceNumberingColorArray)
+            val drawable: Drawable = AppCompatResources.getDrawable(itemView.context, R.drawable.drawable_round)!!
+            val wrapped = DrawableCompat.wrap(drawable)
+            DrawableCompat.setTint(wrapped, colorArray.get(num));
+
+            numberingTextView.setText((num+1).toString())
+            numberingTextView.setBackground(wrapped)
         }
 
         fun showMacAddress(text: String) {

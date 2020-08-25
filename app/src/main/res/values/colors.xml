@@ -4,5 +4,18 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="white">#ffffff</color>
+
+    <color name="g_red">@android:color/holo_red_light</color>
+    <color name="g_orange">@android:color/holo_orange_light</color>
     <color name="g_blue">#3282b8</color>
+    <color name="g_bean">#8BC34A</color>
+    <color name="g_purple">@color/colorPrimary</color>
+
+    <array name="deviceNumberingColorArray">
+        <item>@color/g_bean</item>
+        <item>@color/g_blue</item>
+        <item>@color/g_purple</item>
+        <item>@color/g_orange</item>
+        <item>@color/g_red</item>
+    </array>
 </resources>

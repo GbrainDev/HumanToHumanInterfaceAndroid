@@ -131,7 +131,7 @@ class ChartFragment : Fragment(),
     }
 
     private fun setupDeviceInfo() {
-        device_info.setText("vendor: ${portProvider.getVendorId()}")
+        device_info.setText("master vendor: ${portProvider.getVendorId()}\n")
     }
 
     override fun onDestroyView() {
