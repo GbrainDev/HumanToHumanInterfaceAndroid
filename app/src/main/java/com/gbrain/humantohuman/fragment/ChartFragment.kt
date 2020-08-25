@@ -35,7 +35,7 @@ class ChartFragment : Fragment(),
     SerialPortProvider.DeviceAttachedListener,
     SerialPortProvider.DeviceDettachedListener {
 
-    var batch = 20
+    var batch = 10
     lateinit var portProvider: SerialPortProvider
     lateinit var emgComm: EMGCommunication
     var chartDrawer: ChartDrawer? = null
@@ -111,11 +111,11 @@ class ChartFragment : Fragment(),
     private fun activateWorkers() {
         chartDrawer = ChartDrawer(lineChart, batch, 30f, 30f)
         chartDrawer!!.start()
-        emgComm.startSignalPhase()
+        emgComm.startSignalListening()
     }
 
     private fun deactivateWorkers() {
-        emgComm.stopSignalPhase()
+        emgComm.stopSignalListening()
         chartDrawer?.interrupt()
         chartDrawer = null
     }
@@ -148,7 +148,6 @@ class ChartFragment : Fragment(),
     private fun setupCommunication() {
         emgComm = EMGCommunication(requireContext(),
             portProvider.manager, portProvider.getOpened(),
-            DeviceInfoPhaseListener(),
             SignalPhaseListener())
     }
 
@@ -161,23 +160,16 @@ class ChartFragment : Fragment(),
         textView.setText(text)
     }
 
-    inner class DeviceInfoPhaseListener: StringChunkHandler(18, 1) {
-        @RequiresApi(Build.VERSION_CODES.P)
-        override fun handleChunk(chunk: String) {
-            textViewAppend(logcat, chunk)
-            val macaddr = MacAddress.fromString(chunk)
-        }
+    inner class SignalPhaseListener: StringChunkHandler(5, batch) {
 
-        override fun onRunError(e: java.lang.Exception?) {
-            Toast.makeText(requireContext(), "Device List Error", Toast.LENGTH_SHORT).show()
-            navController.popBackStack()
-        }
-    }
-
-    inner class SignalPhaseListener: StringChunkHandler(4, batch) {
         override fun handleChunk(chunk: String) {
-            textViewAppend(logcat, chunk)
-            chartDrawer?.addSignal(chunk.toFloat())
+            if (!chunk.contains("*"))
+                textViewAppend(logcat, "fucked number")
+            else {
+                val value = chunk.replace("*", "")
+                textViewAppend(logcat, value)
+                chartDrawer?.addSignal(value.toFloat())
+            }
         }
 
         override fun onRunError(e: java.lang.Exception?) {
