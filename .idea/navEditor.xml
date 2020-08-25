@@ -75,6 +75,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="wifiSettingFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-171" />
+                            <option name="y" value="481" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                 </map>
               </option>
             </LayoutPositions>

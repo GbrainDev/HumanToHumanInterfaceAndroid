@@ -51,6 +51,7 @@ class MainFragment : Fragment(),
         navController = Navigation.findNavController(view)
         setupButtons()
         setupDeviceStatus(portProvider.isDeviceAllocated())
+
     }
 
     private fun setupButtons() {

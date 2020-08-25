@@ -117,7 +117,7 @@ class ChartFragment : Fragment(),
     }
 
     private fun initiateWorker() {
-        chartDrawer = ChartDrawer(batch, 30f, 30f)
+        chartDrawer = ChartDrawer(batch,30f, 30f)
         chartDrawer!!.start()
         doSignalHandle = true
         port.write(ByteArray(8), 3000)

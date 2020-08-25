@@ -47,4 +47,5 @@
         android:name="com.gbrain.humantohuman.fragment.GuideFragment"
         android:label="fragment_guide"
         tools:layout="@layout/fragment_guide" />
+
 </navigation>
