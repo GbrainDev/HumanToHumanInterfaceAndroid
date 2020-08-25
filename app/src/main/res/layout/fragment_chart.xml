@@ -66,13 +66,9 @@
                 android:text="@string/connection_info" />
         </LinearLayout>
     </LinearLayout>
-    <ScrollView
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/device_recycler"
         android:layout_width="match_parent"
-        android:layout_height="200dp">
-        <TextView
-            android:id="@+id/logcat"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ems="20"/>
-    </ScrollView>
+        android:layout_height="wrap_content" />
 </LinearLayout>

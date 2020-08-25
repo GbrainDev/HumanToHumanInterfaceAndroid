@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.net.MacAddress
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,8 +16,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.gbrain.humantohuman.chartdrawer.ChartDrawer
 import com.gbrain.humantohuman.R
+import com.gbrain.humantohuman.devicemacadapter.DeviceMacAdapter
 import com.gbrain.humantohuman.emgcomm.EMGCommunication
 import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 import com.hoho.android.usbserial.util.SerialInputOutputManager
@@ -32,17 +35,25 @@ class ChartFragment : Fragment(),
     SerialPortProvider.DeviceAttachedListener,
     SerialPortProvider.DeviceDettachedListener {
 
-    var batch = 10
     lateinit var portProvider: SerialPortProvider
     lateinit var emgComm: EMGCommunication
     var chartDrawer: ChartDrawer? = null
+    var batch = 10
+    val deviceMacListAdapter = DeviceMacAdapter()
 
     lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupRecyclerView()
         subscribeProvider()
         runReceiver()
+    }
+
+    private fun setupRecyclerView() {
+        device_recycler.adapter = deviceMacListAdapter
+        device_recycler.layoutManager = LinearLayoutManager(requireContext(),
+                                            LinearLayoutManager.VERTICAL, false)
     }
 
     private fun subscribeProvider() {
@@ -174,6 +185,8 @@ class ChartFragment : Fragment(),
 
     inner class DeviceInfoPhaseListener: StringChunkHandler(17, 1) {
         override fun handleChunk(chunk: String) {
+            val macAddress = MacAddress.fromString(chunk)
+            deviceMacListAdapter.addItem(macAddress)
         }
 
         override fun onRunError(e: java.lang.Exception?) {
