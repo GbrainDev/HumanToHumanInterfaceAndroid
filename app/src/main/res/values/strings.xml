@@ -4,9 +4,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="device_status_detected">Usb Connection : Success</string>
     <string name="device_status_lost">Usb Connection : Disconnected</string>
-    <string name="app_description">App Version : v1.0 \n\nDeveloped by GBrain \n </string>
-    <string name="guide_title">GBrain Wireless \nHuman to Human Interface \nGuide</string>
-    <string name="title">GBrain Human to Human Interface</string>
+    <string name="app_description">App v1.0 \n\nDeveloped by gBrain Inc. \n </string>
+    <string name="guide_title">gBrain Wireless \nHuman to Human Interface \nGuide</string>
+    <string name="title">gBrain \nHuman to Human Interface</string>
     <string name="guide_description_eng">
         1. Patch EMG electrodes on your arm \n\n
         2. Turn On Sender\'s Power\n\n
@@ -17,15 +17,18 @@
         7. In the chart menu, press the start button to see the live graph
     </string>
     <string name="guide_description_kor">
-        1. EMG 전극을 팔에 부탁합니다 \n\n
+        1. EMG 전극을 팔에 부착합니다 \n\n
         2. Sender 의 파워를 켭니다\n\n
         3. Receiver 의 파워를 켭니다\n\n
         4. 앱을 켭니다 \n\n
         5. USB 케이블로 스마트폰과 Sender 를 연결 합니다 \n\n
-        5. Usb Connection 이 \"Connected\" 상태가 되면, 파워버튼을 누릅니다 \n\n
-        6. 처트메뉴에 진입 하면 시작 버튼을 눌러 실시간 그래프를 볼 수 있습니다
+        5. Usb Connection 이 \"Connected\" 상태가 되면, 파워 버튼을 누릅니다 \n\n
+        6. 차트메뉴에 진입 하면 시작 버튼을 눌러 실시간 그래프를 볼 수 있습니다
     </string>
     <string name="connection_info">Connection Info: \n0 device \nList: </string>
     <string name="setWifi">Set Wifi</string>
     <string name="preference_file_key">com.gbrain.humantohuman.PREFERENCE_FILE_KEY</string>
+    <string name="device_recyclerview_title">
+        ATTACHED SLAVE DEVICES
+    </string>
 </resources>

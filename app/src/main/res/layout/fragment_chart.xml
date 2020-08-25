@@ -20,7 +20,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2" >
+        android:layout_weight="2"
+        android:layout_margin="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,17 +63,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:layout_gravity="center"
-                android:text="@string/connection_info" />
+                android:layout_gravity="center" />
         </LinearLayout>
     </LinearLayout>
-    <ScrollView
+
+    <TextView
+        android:id="@+id/item_title"
+        style="@style/DeviceRecyclerViewItem"
+        android:background="@drawable/drawable_round_rect"
+        android:backgroundTint="@color/g_blue"
         android:layout_width="match_parent"
-        android:layout_height="200dp">
-        <TextView
-            android:id="@+id/logcat"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ems="20"/>
-    </ScrollView>
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:text = "@string/device_recyclerview_title"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        android:gravity="center"
+        android:elevation="2dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_margin="3dp"
+        android:background="@drawable/drawable_round_rect"
+        android:layout_weight="1.5"
+        android:id="@+id/device_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
