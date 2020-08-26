@@ -101,10 +101,11 @@ class EMGCommunication(private val context: Context,
     }
 
     fun stopSignalListening() {
+        sendTerminator()
         releasePhase()
     }
 
-    companion object {
-        private val nullMacAddressString = "00:00:00:00:00:00"
+    private fun sendTerminator() {
+        sendInitiator()
     }
 }

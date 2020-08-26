@@ -108,21 +108,21 @@ class ChartFragment : Fragment(),
     private fun setupButtons() {
 
         calibButton.setOnClickListener {
-            calibButton.text = "5s"
             calibButton.isEnabled = false
             activateSignalReceive()
-            CalibrationWaitingTask().execute(8)
+            CalibrationWaitingTask().execute(5)
         }
 
         drawButton.setOnClickListener {
-            drawButton.text = "그래프 구현중"
             drawButton.isEnabled = false
+            drawButton.text = "그래프 구현중"
+            stopButton.isEnabled = true
             activateChart()
         }
 
         stopButton.setOnClickListener {
-            drawButton.text = "Start"
             stopButton.isEnabled = false
+            drawButton.text = "Start"
             deactivateWorkers()
         }
     }
@@ -137,9 +137,9 @@ class ChartFragment : Fragment(),
     }
 
     private fun deactivateWorkers() {
-        emgComm.stopSignalListening()
         chartDrawer?.interrupt()
         chartDrawer = null
+        emgComm.stopSignalListening()
     }
 
     private fun setupDeviceInfo() {
@@ -172,8 +172,9 @@ class ChartFragment : Fragment(),
     }
 
     private fun enableButtons() {
-        drawButton.isEnabled = true
-        stopButton.isEnabled = true
+        calibButton.isEnabled = true
+        drawButton.isEnabled = false
+        stopButton.isEnabled = false
     }
 
     private fun textViewAppend(textView: TextView, text: String) {
@@ -217,7 +218,7 @@ class ChartFragment : Fragment(),
             var waitSecond = sec[0]!!
             while (waitSecond-- > 0) {
                 Thread.sleep(1000)
-                calibButton.text = "${waitSecond}s"
+                calibButton.text = "Wait ${waitSecond}s"
             }
         }
 
