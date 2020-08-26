@@ -101,7 +101,12 @@ class EMGCommunication(private val context: Context,
     }
 
     fun stopSignalListening() {
+        sendTerminator()
         releasePhase()
+    }
+
+    private fun sendTerminator() {
+        sendInitiator()
     }
 
     companion object {
