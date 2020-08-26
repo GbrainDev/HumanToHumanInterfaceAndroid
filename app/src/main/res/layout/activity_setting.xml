@@ -6,15 +6,53 @@
     android:layout_height="match_parent"
     tools:context=".SettingActivity">
 
-    <Button
-        android:id="@+id/wifi_button"
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:gravity="center"
+        android:text="WIFI Information Settings"
+        android:textColor="#000"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/ssid_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:text="@string/setWifi"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        android:gravity="center"
+        android:text="WIFI SSID"
+        android:textColor="#000"
+        app:layout_constraintBottom_toBottomOf="@+id/wifi_name_input"
+        app:layout_constraintEnd_toStartOf="@+id/wifi_name_input"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/wifi_name_input" />
+
+    <TextView
+        android:id="@+id/passwd_label2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="WIFI PASSWORD"
+        android:textColor="#000"
+        app:layout_constraintBottom_toBottomOf="@+id/wifi_pw_input"
+        app:layout_constraintEnd_toStartOf="@+id/wifi_name_input"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/wifi_pw_input" />
+
+    <Button
+        android:id="@+id/wifi_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/setWifi"
+        app:layout_constraintEnd_toEndOf="@+id/wifi_pw_input"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="@+id/wifi_pw_input"
         app:layout_constraintTop_toBottomOf="@+id/wifi_pw_input" />
 
 
@@ -22,22 +60,23 @@
         android:id="@+id/wifi_name_input"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:hint="Wifi Name"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="70dp"
+        android:hint="WIFI SSID"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/title_text" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/wifi_pw_input"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:hint="Wifi Password"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp"
+        android:hint="WIFI PASSWORD"
+        app:layout_constraintEnd_toEndOf="@+id/wifi_name_input"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/wifi_name_input"
         app:layout_constraintTop_toBottomOf="@+id/wifi_name_input" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
