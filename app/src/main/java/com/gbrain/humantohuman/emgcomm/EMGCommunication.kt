@@ -108,8 +108,4 @@ class EMGCommunication(private val context: Context,
     private fun sendTerminator() {
         sendInitiator()
     }
-
-    companion object {
-        private val nullMacAddressString = "00:00:00:00:00:00"
-    }
 }
