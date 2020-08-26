@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -55,15 +56,23 @@ class MainFragment : Fragment(),
     }
 
     private fun setupButtons() {
+        val animSet = AnimationSet(true).apply {
+            addAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.tongtong))
+            addAnimation(AnimationUtils.loadAnimation(requireContext(), R.anim.hundulhundul))
+        }
+
         btn_chart.setOnClickListener {
+            it.startAnimation(animSet)
             navController.navigate(R.id.action_mainFragment_to_chartFragment)
         }
 
         btn_guide.setOnClickListener {
+            it.startAnimation(animSet)
             navController.navigate(R.id.action_mainFragment_to_guideFragment)
         }
 
         btn_info.setOnClickListener {
+            it.startAnimation(animSet)
             navController.navigate(R.id.action_mainFragment_to_infoFragment)
         }
     }
