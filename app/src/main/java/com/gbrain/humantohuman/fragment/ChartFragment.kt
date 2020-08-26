@@ -1,13 +1,12 @@
 package com.gbrain.humantohuman.fragment
 
-import android.bluetooth.BluetoothClass
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
-import android.net.MacAddress
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,7 @@ import com.gbrain.humantohuman.serialprovider.SerialPortProvider
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 import dataprotocol.typehandle.TypeHandler
 import kotlinx.android.synthetic.main.fragment_chart.*
+import java.util.logging.Handler
 
 fun Fragment?.runOnUiThread(action: () -> Unit) {
     this ?: return
@@ -106,24 +106,34 @@ class ChartFragment : Fragment(),
     }
 
     private fun setupButtons() {
-        startButton.setOnClickListener {
-            startButton.text = "그래프 구현중"
-            startButton.isEnabled = false
-            activateWorkers()
+
+        calibButton.setOnClickListener {
+            calibButton.text = "5s"
+            calibButton.isEnabled = false
+            activateSignalReceive()
+            CalibrationWaitingTask().execute(8)
+        }
+
+        drawButton.setOnClickListener {
+            drawButton.text = "그래프 구현중"
+            drawButton.isEnabled = false
+            activateChart()
         }
 
         stopButton.setOnClickListener {
-            startButton.text = "Start"
-            startButton.isEnabled = false
+            drawButton.text = "Start"
             stopButton.isEnabled = false
             deactivateWorkers()
         }
     }
 
-    private fun activateWorkers() {
+    private fun activateSignalReceive() {
+        emgComm.startSignalingPhase()
+    }
+
+    private fun activateChart() {
         chartDrawer = ChartDrawer(lineChart, batch, 30f, 30f)
         chartDrawer!!.start()
-        emgComm.startSignalingPhase()
     }
 
     private fun deactivateWorkers() {
@@ -162,7 +172,7 @@ class ChartFragment : Fragment(),
     }
 
     private fun enableButtons() {
-        startButton.isEnabled = true
+        drawButton.isEnabled = true
         stopButton.isEnabled = true
     }
 
@@ -199,6 +209,21 @@ class ChartFragment : Fragment(),
         override fun onRunError(e: java.lang.Exception?) {
             Toast.makeText(requireContext(), "Port Released", Toast.LENGTH_SHORT).show()
             navController.popBackStack()
+        }
+    }
+
+    inner class CalibrationWaitingTask: AsyncTask<Int, Int, Unit>() {
+        override fun doInBackground(vararg sec: Int?): Unit {
+            var waitSecond = sec[0]!!
+            while (waitSecond-- > 0) {
+                Thread.sleep(1000)
+                calibButton.text = "${waitSecond}s"
+            }
+        }
+
+        override fun onPostExecute(result: Unit?) {
+            drawButton.isEnabled = true
+            calibButton.text = "Calibrate"
         }
     }
 }
