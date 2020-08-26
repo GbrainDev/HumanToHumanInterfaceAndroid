@@ -54,8 +54,6 @@ class EMGCommunication(private val context: Context,
         val wifiName = pref.getString(SHARED_PREF_WIFI_NAME, "")
         val wifiPassword = pref.getString(SHARED_PREF_WIFI_PASSWD, "")
 
-//        val wifiName = "gbrain"
-//        val wifiPassword = "gbrain1908!"
         sendString(wifiName!!, 40)
         sendString(wifiPassword!!, 40)
         log("$wifiName, $wifiPassword")
