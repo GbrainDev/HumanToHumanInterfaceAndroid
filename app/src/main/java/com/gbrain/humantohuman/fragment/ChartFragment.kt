@@ -108,13 +108,14 @@ class ChartFragment : Fragment(),
     private fun setupButtons() {
         startButton.setOnClickListener {
             startButton.text = "그래프 구현중"
-            startButton.isClickable = false
+            startButton.isEnabled = false
             activateWorkers()
         }
 
         stopButton.setOnClickListener {
             startButton.text = "Start"
-            startButton.isClickable = true
+            startButton.isEnabled = false
+            stopButton.isEnabled = false
             deactivateWorkers()
         }
     }
