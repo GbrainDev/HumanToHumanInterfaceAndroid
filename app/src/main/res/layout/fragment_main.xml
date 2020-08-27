@@ -9,27 +9,27 @@
     <!-- TODO: Update blank fragment layout -->
 
     <ImageView
-        android:id="@+id/btn_chart"
-        style="?android:borderlessButtonStyle"
-        android:layout_width="125dp"
-        android:layout_height="125dp"
+        android:id="@+id/btn_guide"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_guidebook"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.8"
+        app:layout_constraintHorizontal_bias="0.178"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/device_status" />
 
     <ImageView
-        android:id="@+id/btn_guide"
-        android:layout_width="125dp"
-        android:layout_height="125dp"
-        android:src="@drawable/ic_guidebook"
+        android:id="@+id/btn_chart"
+        style="?android:borderlessButtonStyle"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.181"
+        app:layout_constraintHorizontal_bias="0.797"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/device_status"
-        app:layout_constraintVertical_bias="0.495" />
+        app:layout_constraintVertical_bias="0.504" />
 
     <ImageView
         android:id="@+id/btn_info"
