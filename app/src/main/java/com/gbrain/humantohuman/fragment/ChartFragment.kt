@@ -98,7 +98,6 @@ class ChartFragment : Fragment(),
         navController = Navigation.findNavController(view)
 
         setupButtons()
-        setupDeviceInfo()
         setupRecyclerView()
 
         if (portProvider.isDeviceAllocated())
@@ -142,10 +141,6 @@ class ChartFragment : Fragment(),
         emgComm.stopSignalListening()
     }
 
-    private fun setupDeviceInfo() {
-        device_info.setText("master vendor: ${portProvider.getVendorId()}\n")
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         deactivateWorkers()
@@ -177,10 +172,6 @@ class ChartFragment : Fragment(),
         stopButton.isEnabled = false
     }
 
-    private fun textViewAppend(textView: TextView, text: String) {
-        textView.setText(text)
-    }
-
     inner class SignalPhaseListener: StringChunkHandler(5, batch) {
 
         init {
@@ -188,6 +179,7 @@ class ChartFragment : Fragment(),
                 if (data.contains("*")) {
                     val value = data.replace("*", "")
                     chartDrawer?.addSignal(value.toFloat())
+                    logcat.setText(value)
                 }
             }
         }
